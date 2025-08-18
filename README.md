@@ -19,7 +19,7 @@
 | 📹 **会议不再手忙脚乱** | 🎙️ **写作像说话一样自然** | 🤖 **用声音控制电脑** |
 |---|---|---|
 | 实时转录 + AI 总结，让你专注于交流而非记录 | 任何输入框都能语音输入，邮件、文档、代码注释 | "打开项目" "搜索资料" "调试代码" - 说出来就能执行 |
-| ![meeting-gif](https://github.com/user-attachments/assets/3c66d947-9bab-49ae-9f01-e017949796be) | ![dictation-gif](https://github.com/user-attachments/assets/607412bf-627d-4a7d-b676-fb02ed18dca0) | ![command-gif](https://github.com/user-attachments/assets/c620f2f6-663c-4d6c-b421-7f8b53cf9136) |
+| ![meeting-gif](https://github.com/user-attachments/assets/3214a31c-a5ae-49dc-a6a3-70f19c0ca2f8) | ![dictation-gif](https://github.com/user-attachments/assets/9ec004e4-3864-4b74-8d2a-e143919c230a) | ![command-gif](https://github.com/user-attachments/assets/e2944fa4-19e4-4974-9b5a-4bb928e64d82) |
 
 ## ⚡ 核心优势
 

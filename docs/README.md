@@ -18,7 +18,7 @@
 | 📹 **No More Meeting Chaos** | 🎙️ **Writing as Natural as Speaking** | 🤖 **Control Your Computer with Voice** |
 |---|---|---|
 | Real-time transcription + AI summarization, focus on communication instead of note-taking | Voice input in any text field - emails, documents, code comments | "Open project" "Search materials" "Debug code" - just speak and it executes |
-| ![meeting-gif](https://github.com/user-attachments/assets/3c66d947-9bab-49ae-9f01-e017949796be) | ![dictation-gif](https://github.com/user-attachments/assets/607412bf-627d-4a7d-b676-fb02ed18dca0) | ![command-gif](https://github.com/user-attachments/assets/c620f2f6-663c-4d6c-b421-7f8b53cf9136) |
+| ![meeting-gif](https://github.com/user-attachments/assets/3214a31c-a5ae-49dc-a6a3-70f19c0ca2f8) | ![dictation-gif](https://github.com/user-attachments/assets/9ec004e4-3864-4b74-8d2a-e143919c230a) | ![command-gif](https://github.com/user-attachments/assets/e2944fa4-19e4-4974-9b5a-4bb928e64d82) |
 
 ## ⚡ Core Advantages
 

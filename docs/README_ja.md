@@ -18,7 +18,7 @@
 | 📹 **会議をスマートに** | 🎙️ **話すように書く** | 🤖 **音声でPC操作** |
 |---|---|---|
 | リアルタイム転写 + AI要約で、記録ではなく対話に集中 | あらゆる入力ボックスで音声入力。メール、文書、コード注釈まで | 「プロジェクトを開いて」「資料を検索」「コードをデバッグ」- 話すだけで実行 |
-| ![meeting-gif](https://github.com/user-attachments/assets/3c66d947-9bab-49ae-9f01-e017949796be) | ![dictation-gif](https://github.com/user-attachments/assets/607412bf-627d-4a7d-b676-fb02ed18dca0) | ![command-gif](https://github.com/user-attachments/assets/c620f2f6-663c-4d6c-b421-7f8b53cf9136) |
+| ![meeting-gif](https://github.com/user-attachments/assets/3214a31c-a5ae-49dc-a6a3-70f19c0ca2f8) | ![dictation-gif](https://github.com/user-attachments/assets/9ec004e4-3864-4b74-8d2a-e143919c230a) | ![command-gif](https://github.com/user-attachments/assets/e2944fa4-19e4-4974-9b5a-4bb928e64d82) |
 
 ## ⚡ 核心優勢
 
