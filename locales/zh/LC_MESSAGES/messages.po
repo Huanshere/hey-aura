@@ -1,0 +1,827 @@
+# PROJECT 的中文翻译。
+# 版权所有 (C) 2025 ORGANIZATION
+# 本文件遵循 PROJECT 项目的相同许可证分发。
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-08-17 18:56+0800\n"
+"PO-Revision-Date: 2025-08-17 18:56+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh\n"
+"Language-Team: zh <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app.py:37
+msgid "→ Initializing Hey Aura"
+msgstr "→ 正在初始化 Hey Aura"
+
+#: app.py:40
+#, python-brace-format
+msgid "→ Model: {}, Language: {}"
+msgstr "→ 模型：{}，语言：{}"
+
+#: app.py:51
+msgid "→ Starting loading VAD and ASR models..."
+msgstr "→ 正在加载 VAD 和 ASR 模型..."
+
+#: app.py:57
+msgid "  → Loading VAD model..."
+msgstr "  → 正在加载 VAD 模型..."
+
+#: app.py:60
+msgid "  ✅ VAD model loaded successfully"
+msgstr "  ✅ VAD 模型加载成功"
+
+#: app.py:63
+#, python-brace-format
+msgid "  ❌ Failed to load VAD model: {}"
+msgstr "  ❌ 加载 VAD 模型失败：{}"
+
+#: app.py:68
+msgid "  → Loading ASR model..."
+msgstr "  → 正在加载 ASR 模型..."
+
+#: app.py:74
+#, python-brace-format
+msgid "Language '{}' is not supported. Supported languages: {}..."
+msgstr "不支持语言 '{}'。支持的语言有：{}..."
+
+#: app.py:76
+msgid "  ✅ ASR model loaded successfully"
+msgstr "  ✅ ASR 模型加载成功"
+
+#: app.py:79
+#, python-brace-format
+msgid "  ❌ Failed to load ASR model: {}"
+msgstr "  ❌ 加载 ASR 模型失败：{}"
+
+#: app.py:88
+msgid "✅ All models loaded successfully"
+msgstr "✅ 所有模型加载成功"
+
+#: app.py:113
+msgid "→ Fn for dictation, Fn+Ctrl for command mode, right-click tray to exit"
+msgstr "→ 按 Fn 进行听写，Fn+Ctrl 进入指令模式，右键托盘退出"
+
+#: app.py:113
+msgid ""
+"→ Ctrl+Win for dictation, Win+Alt for command mode, right-click tray to "
+"exit"
+msgstr "→ Ctrl+Win 进行听写，Win+Alt 进入指令模式，右键托盘退出"
+
+#: app.py:123
+#, python-brace-format
+msgid "Queue: {} pending, {} active"
+msgstr "队列：{} 等待中，{} 活跃中"
+
+#: app.py:124
+#, python-brace-format
+msgid "⚠️ Transcription queue backlog: {} tasks"
+msgstr "⚠️ 转录队列积压：{} 个任务"
+
+#: app.py:126
+#, python-brace-format
+msgid "Queue monitoring error: {}"
+msgstr "队列监控错误：{}"
+
+#: app.py:140
+msgid "→ Exiting program"
+msgstr "→ 正在退出程序"
+
+#: app.py:153
+msgid "⚠️ Cannot start recording - meeting mode is active"
+msgstr "⚠️ 无法开始录音 - 会议模式已激活"
+
+#: app.py:159
+msgid "⚠️ Detected unfinished recording thread, cleaning up..."
+msgstr "⚠️ 检测到未完成的录音线程，正在清理..."
+
+#: app.py:166
+msgid "⚠️ Cannot terminate old recording thread, force cleanup"
+msgstr "⚠️ 无法终止旧录音线程，强制清理"
+
+#: app.py:170
+#, python-brace-format
+msgid "🎤 Recording... (Mode: {})"
+msgstr "🎤 正在录音...（模式：{}）"
+
+#: app.py:187
+#, python-brace-format
+msgid "🎙️ Using system default device: {}"
+msgstr "🎙️ 使用系统默认设备：{}"
+
+#: app.py:209
+msgid "⚠️ Audio input overflow"
+msgstr "⚠️ 音频输入溢出"
+
+#: app.py:218
+#, python-brace-format
+msgid "Error reading audio data: {}"
+msgstr "读取音频数据出错：{}"
+
+#: app.py:224
+msgid "⚠️ Audio device disconnected or switched, please restart recording"
+msgstr "⚠️ 音频设备断开或切换，请重新开始录音"
+
+#: app.py:226
+msgid "⚠️ Audio device configuration error, please check microphone permissions"
+msgstr "⚠️ 音频设备配置错误，请检查麦克风权限"
+
+#: app.py:228 app.py:234
+#, python-brace-format
+msgid "Recording error: {}"
+msgstr "录音错误：{}"
+
+#: app.py:247
+#, python-brace-format
+msgid "Error closing audio stream: {}"
+msgstr "关闭音频流出错：{}"
+
+#: app.py:256
+msgid "✨ Processing..."
+msgstr "✨ 正在处理..."
+
+#: app.py:264
+msgid "⚠️ Recording thread timeout, force cleanup resources"
+msgstr "⚠️ 录音线程超时，强制清理资源"
+
+#: app.py:272
+msgid "Recording thread timeout"
+msgstr "录音线程超时"
+
+#: app.py:279
+msgid "No data"
+msgstr "无数据"
+
+#: app.py:284
+msgid "Too short"
+msgstr "太短"
+
+#: app.py:289
+msgid "Audio too short after VAD processing"
+msgstr "VAD 处理后音频过短"
+
+#: app.py:325
+msgid "No text"
+msgstr "无文本"
+
+#: app.py:328
+msgid "❌ Transcription timeout"
+msgstr "❌ 转录超时"
+
+#: app.py:330
+#, python-brace-format
+msgid "❌ Transcription error: {}"
+msgstr "❌ 转录错误：{}"
+
+#: app.py:331
+#, python-brace-format
+msgid "Error: {}"
+msgstr "错误：{}"
+
+#: app.py:336
+msgid "Recording ended"
+msgstr "录音结束"
+
+#: app.py:339
+#, python-brace-format
+msgid "📝 Dictation output: {}"
+msgstr "📝 听写输出：{}"
+
+#: app.py:344
+#, python-brace-format
+msgid "✨ Rewritten: {}"
+msgstr "✨ 重写：{}"
+
+#: app.py:350
+#, python-brace-format
+msgid "🤖 Command input: {}"
+msgstr "🤖 指令输入：{}"
+
+#: app.py:355
+msgid ""
+"\n"
+"✅ Command completed"
+msgstr ""
+"\n"
+"✅ 指令已完成"
+
+#: app.py:356
+#, python-brace-format
+msgid "❌ Command processing error: {}"
+msgstr "❌ 指令处理错误：{}"
+
+#: app.py:359
+msgid "Command ended"
+msgstr "指令结束"
+
+#: app.py:390
+#, python-brace-format
+msgid "Startup error: {}"
+msgstr "启动错误：{}"
+
+#: app.py:391
+msgid "Press Enter to exit..."
+msgstr "按回车键退出..."
+
+#: core/audio_utils.py:30
+#, python-brace-format
+msgid "→ 🎙️ Using default audio device: {}"
+msgstr "→ 🎙️ 使用默认音频设备：{}"
+
+#: core/audio_utils.py:35
+msgid "📍 Default device is headphone mic, enabling priority selection"
+msgstr "📍 默认设备为耳机麦克风，启用优先选择"
+
+#: core/audio_utils.py:62
+#, python-brace-format
+msgid "🎙️ Selected audio device: {} ({})"
+msgstr "🎙️ 已选择音频设备：{}（{}）"
+
+#: core/audio_utils.py:107
+#, python-brace-format
+msgid "Warning: Silero VAD ONNX init failed: {}"
+msgstr "警告：Silero VAD ONNX 初始化失败：{}"
+
+#: core/audio_utils.py:108
+msgid "→ Skipping VAD processing"
+msgstr "→ 跳过 VAD 处理"
+
+#: core/audio_utils.py:124
+#, python-brace-format
+msgid "Warning: Sample rate mismatch {} != {}, resampling"
+msgstr "警告：采样率不匹配 {} != {}，正在重采样"
+
+#: core/audio_utils.py:141
+#, python-brace-format
+msgid "VAD processing error: {}"
+msgstr "VAD 处理错误：{}"
+
+#: core/audio_utils.py:247
+msgid "No speech detected"
+msgstr "未检测到语音"
+
+#: core/audio_utils.py:298
+#, python-brace-format
+msgid "Realtime VAD error: {}"
+msgstr "实时 VAD 错误：{}"
+
+#: core/audio_utils.py:347
+#, python-brace-format
+msgid "Noise reduction failed ({}), skipping."
+msgstr "降噪失败（{}），已跳过。"
+
+#: core/keyboard_utils.py:26
+#, python-brace-format
+msgid "→ Input failed: {}"
+msgstr "→ 输入失败：{}"
+
+#: core/keyboard_utils.py:80 core/keyboard_utils.py:94
+msgid "🪼 Command mode - Fn + Ctrl"
+msgstr "🪼 指令模式 - Fn + Ctrl"
+
+#: core/keyboard_utils.py:107
+msgid "📝 Dictation mode - Fn key"
+msgstr "📝 听写模式 - Fn 键"
+
+#: core/keyboard_utils.py:129
+#, python-brace-format
+msgid "→ Keyboard listener error: {}"
+msgstr "→ 键盘监听器错误：{}"
+
+#: core/keyboard_utils.py:163
+msgid "📝 Dictation mode - Fn key delayed trigger"
+msgstr "📝 听写模式 - Fn 键延迟触发"
+
+#: core/keyboard_utils.py:168
+msgid "→ Event listener stopped"
+msgstr "→ 事件监听器已停止"
+
+#: core/keyboard_utils.py:171
+msgid "⚠️ Failed to create event listener"
+msgstr "⚠️ 创建事件监听器失败"
+
+#: core/keyboard_utils.py:172
+msgid ""
+"⚠️ Please check: Add Terminal/Python to System Preferences > Security & "
+"Privacy > Privacy > Accessibility"
+msgstr "⚠️ 请检查：将终端/Python 添加到系统偏好设置 > 安全性与隐私 > 隐私 > 辅助功能"
+
+#: core/keyboard_utils.py:176
+#, python-brace-format
+msgid "⚠️ Quartz listener error: {}"
+msgstr "⚠️ Quartz 监听器错误：{}"
+
+#: core/keyboard_utils.py:233
+msgid "📝 Dictation mode - Combo confirmed: Ctrl+Win"
+msgstr "📝 听写模式 - 组合键确认：Ctrl+Win"
+
+#: core/keyboard_utils.py:239
+msgid "🪼 Command mode - Combo confirmed: Win+Alt"
+msgstr "🪼 指令模式 - 组合键确认：Win+Alt"
+
+#: core/meeting_utils.py:35
+msgid "→ 💡 Starting meeting recording..."
+msgstr "→ 💡 正在开始会议录音..."
+
+#: core/meeting_utils.py:55
+msgid "⏹️ Stopping meeting recording..."
+msgstr "⏹️ 正在停止会议录音..."
+
+#: core/meeting_utils.py:60
+msgid "→ Waiting for microphone recording thread..."
+msgstr "→ 正在等待麦克风录音线程..."
+
+#: core/meeting_utils.py:63
+msgid "→ Warning: Recording thread did not terminate cleanly"
+msgstr "→ 警告：录音线程未正常终止"
+
+#: core/meeting_utils.py:69
+msgid "✅ Meeting recording saved"
+msgstr "✅ 会议录音已保存"
+
+#: core/meeting_utils.py:71
+#, python-brace-format
+msgid "❌ Error saving meeting results: {}"
+msgstr "❌ 保存会议结果出错：{}"
+
+#: core/meeting_utils.py:79
+#, python-brace-format
+msgid "→ Error re-enabling keyboard listeners: {}"
+msgstr "→ 重新启用键盘监听器出错：{}"
+
+#: core/transcription_queue.py:39
+msgid "→ Starting transcription service..."
+msgstr "→ 正在启动转录服务..."
+
+#: core/transcription_queue.py:46
+msgid "✅ Transcription service ready"
+msgstr "✅ 转录服务已就绪"
+
+#: core/transcription_queue.py:50
+msgid "🔄 Stopping transcription service..."
+msgstr "🔄 正在停止转录服务..."
+
+#: core/transcription_queue.py:59
+#, python-brace-format
+msgid "⚠️ Worker thread did not stop gracefully: {}"
+msgstr "⚠️ 工作线程未正常停止：{}"
+
+#: core/transcription_queue.py:62
+msgid "✅ Transcription service stopped"
+msgstr "✅ 转录服务已停止"
+
+#: core/transcription_queue.py:100
+#, python-brace-format
+msgid "❌ Worker thread error: {} - {}"
+msgstr "❌ 工作线程错误：{} - {}"
+
+#: core/transcription_queue.py:104
+#, python-brace-format
+msgid "→ Transcription worker stopped: {}"
+msgstr "→ 转录工作线程已停止：{}"
+
+#: core/transcription_queue.py:117
+#, python-brace-format
+msgid "✅ Transcription completed in {:.2f}s"
+msgstr "✅ 转录完成，用时 {:.2f} 秒"
+
+#: core/transcription_queue.py:121
+#, python-brace-format
+msgid "❌ Callback error for task: {}... - {}"
+msgstr "❌ 任务回调错误：{}... - {}"
+
+#: core/transcription_queue.py:127
+#, python-brace-format
+msgid "❌ Transcription failed: {}... in {:.2f}s - {}"
+msgstr "❌ 转录失败：{}... 用时 {:.2f} 秒 - {}"
+
+#: core/transcription_queue.py:131
+#, python-brace-format
+msgid "❌ Error callback failed for task: {}... - {}"
+msgstr "❌ 任务错误回调失败：{}... - {}"
+
+#: core/meeting/audio_processor.py:73
+msgid "→ 💡 System audio recording started"
+msgstr "→ 💡 系统音频录音已开始"
+
+#: core/meeting/audio_processor.py:82
+msgid "→ ⚠️ System audio recording failed, only recording microphone"
+msgstr "→ ⚠️ 系统音频录音失败，仅录制麦克风"
+
+#: core/meeting/audio_processor.py:85
+#, python-brace-format
+msgid "→ ⚠️ Could not initialize system audio: {}"
+msgstr "→ ⚠️ 无法初始化系统音频：{}"
+
+#: core/meeting/audio_processor.py:89
+msgid "→ 🎤 Starting microphone recording (after system audio setup)..."
+msgstr "→ 🎤 正在开始麦克风录音（系统音频设置后）..."
+
+#: core/meeting/audio_processor.py:104
+#, python-brace-format
+msgid "→ 🎙️ Selected microphone device: {}"
+msgstr "→ 🎙️ 已选择麦克风设备：{}"
+
+#: core/meeting/audio_processor.py:133
+msgid "  → Audio input overflow"
+msgstr "  → 音频输入溢出"
+
+#: core/meeting/audio_processor.py:153
+#, python-brace-format
+msgid "→ [Mic] VAD detection error: {}"
+msgstr "→ [麦克风] VAD 检测错误：{}"
+
+#: core/meeting/audio_processor.py:167
+msgid "→ Speech detected, recording..."
+msgstr "→ 检测到语音，正在录音..."
+
+#: core/meeting/audio_processor.py:185
+#, python-brace-format
+msgid "  → Speech paused, processing segment {}: {:.1f}s"
+msgstr "  → 语音暂停，处理片段 {}：{:.1f}秒"
+
+#: core/meeting/audio_processor.py:195
+msgid "  → Warning: Audio queue is full, skipping segment"
+msgstr "  → 警告：音频队列已满，跳过该片段"
+
+#: core/meeting/audio_processor.py:213
+#, python-brace-format
+msgid "  → Error in meeting recording: {}"
+msgstr "  → 会议录音出错：{}"
+
+#: core/meeting/audio_processor.py:222
+#, python-brace-format
+msgid "  → Meeting recording error: {}"
+msgstr "  → 会议录音错误：{}"
+
+#: core/meeting/audio_processor.py:253
+msgid "→ [System] Speech segment queued for independent transcription"
+msgstr "→ [系统] 语音片段已加入独立转录队列"
+
+#: core/meeting/audio_processor.py:255
+msgid "→ [System] Independent transcription queue is full"
+msgstr "→ [系统] 独立转录队列已满"
+
+#: core/meeting/audio_processor.py:258
+#, python-brace-format
+msgid "→ [System] Error processing audio: {}"
+msgstr "→ [系统] 处理音频出错：{}"
+
+#: core/meeting/audio_processor.py:293
+msgid "→ Stopping system audio..."
+msgstr "→ 正在停止系统音频..."
+
+#: core/meeting/audio_processor.py:297
+msgid "→ System audio stopped successfully"
+msgstr "→ 系统音频已成功停止"
+
+#: core/meeting/audio_processor.py:299
+#, python-brace-format
+msgid "→ Error stopping system audio: {}"
+msgstr "→ 停止系统音频出错：{}"
+
+#: core/meeting/audio_processor.py:303
+msgid "→ Waiting for system audio thread..."
+msgstr "→ 正在等待系统音频线程..."
+
+#: core/meeting/audio_processor.py:306
+msgid "→ Warning: System audio thread did not terminate cleanly"
+msgstr "→ 警告：系统音频线程未正常终止"
+
+#: core/meeting/audio_processor.py:310
+msgid "→ Closing audio stream..."
+msgstr "→ 正在关闭音频流..."
+
+#: core/meeting/audio_processor.py:314
+msgid "→ Audio stream closed successfully"
+msgstr "→ 音频流已成功关闭"
+
+#: core/meeting/audio_processor.py:316
+#, python-brace-format
+msgid "→ Error closing audio stream: {}"
+msgstr "→ 关闭音频流出错：{}"
+
+#: core/meeting/audio_processor.py:349
+#, python-brace-format
+msgid "→ Mixed audio: Microphone {:.1f}s + System {:.1f}s"
+msgstr "→ 混合音频：麦克风 {:.1f}秒 + 系统 {:.1f}秒"
+
+#: core/meeting/audio_processor.py:357
+#, python-brace-format
+msgid "→ Microphone audio only: {:.1f}s"
+msgstr "→ 仅麦克风音频：{:.1f}秒"
+
+#: core/meeting/meeting_exporter.py:74
+#, python-brace-format
+msgid "📄 Transcripts saved to: {}"
+msgstr "📄 转录文件已保存到：{}"
+
+#: core/meeting/meeting_exporter.py:75
+#, python-brace-format
+msgid "  → {} microphone transcripts"
+msgstr "  → {} 条麦克风转录"
+
+#: core/meeting/meeting_exporter.py:78
+#, python-brace-format
+msgid "  → {} system audio transcripts"
+msgstr "  → {} 条系统音频转录"
+
+#: core/meeting/meeting_exporter.py:84
+msgid "📝 Generating meeting summary..."
+msgstr "📝 正在生成会议摘要..."
+
+#: core/meeting/meeting_exporter.py:97
+msgid "✅ Meeting summary generated and added"
+msgstr "✅ 会议摘要已生成并添加"
+
+#: core/meeting/meeting_exporter.py:120
+#, python-brace-format
+msgid "🎵 Audio saved to: {}"
+msgstr "🎵 音频已保存到：{}"
+
+#: core/meeting/system_recorder_mac.py:50
+#, python-brace-format
+msgid "→ Original audio device: {}"
+msgstr "→ 原始音频设备：{}"
+
+#: core/meeting/system_recorder_mac.py:57
+msgid "→ hey-aura output device not found"
+msgstr "→ 未找到 hey-aura 输出设备"
+
+#: core/meeting/system_recorder_mac.py:61
+#, python-brace-format
+msgid "→ System output switched to: {}"
+msgstr "→ 系统输出已切换为：{}"
+
+#: core/meeting/system_recorder_mac.py:71
+msgid "→ BlackHole input device not found, cannot record system audio"
+msgstr "→ 未找到 BlackHole 输入设备，无法录制系统音频"
+
+#: core/meeting/system_recorder_mac.py:75
+#, python-brace-format
+msgid "→ Using recording device: {} (index: {})"
+msgstr "→ 使用录音设备：{}（索引：{}）"
+
+#: core/meeting/system_recorder_mac.py:88
+#: core/meeting/system_recorder_win.py:50
+msgid "→ System audio recording started"
+msgstr "→ 系统音频录音已开始"
+
+#: core/meeting/system_recorder_mac.py:107
+#, python-brace-format
+msgid "→ Recording started, channels: {}"
+msgstr "→ 录音已开始，通道数：{}"
+
+#: core/meeting/system_recorder_mac.py:118
+msgid "→ [System] Audio input overflowed"
+msgstr "→ [系统] 音频输入溢出"
+
+#: core/meeting/system_recorder_mac.py:140
+#: core/meeting/system_recorder_win.py:82
+msgid "→ [System] Speech detected"
+msgstr "→ [系统] 检测到语音"
+
+#: core/meeting/system_recorder_mac.py:150
+#: core/meeting/system_recorder_win.py:92
+#, python-brace-format
+msgid "→ [System] Speech segment {}: {:.1f}s"
+msgstr "→ [系统] 语音片段 {}：{:.1f}秒"
+
+#: core/meeting/system_recorder_mac.py:152
+msgid "→ [System] Queue full"
+msgstr "→ [系统] 队列已满"
+
+#: core/meeting/system_recorder_mac.py:165
+#: core/meeting/system_recorder_win.py:109
+#, python-brace-format
+msgid "→ [System] Recording failed: {}"
+msgstr "→ [系统] 录音失败：{}"
+
+#: core/meeting/system_recorder_mac.py:179
+#: core/meeting/system_recorder_win.py:125
+msgid "→ Stopping system audio recording..."
+msgstr "→ 正在停止系统音频录音..."
+
+#: core/meeting/system_recorder_mac.py:192
+#, python-brace-format
+msgid "→ Restored to original device: {}"
+msgstr "→ 已恢复为原始设备：{}"
+
+#: core/meeting/system_recorder_mac.py:197
+#: core/meeting/system_recorder_win.py:133
+#, python-brace-format
+msgid "→ Total system audio length: {:.1f}s"
+msgstr "→ 系统音频总时长：{:.1f}秒"
+
+#: core/meeting/system_recorder_mac.py:214
+msgid "System audio recording test (5 seconds) - macOS"
+msgstr "系统音频录音测试（5秒）- macOS"
+
+#: core/meeting/system_recorder_mac.py:218
+#: core/meeting/system_recorder_win.py:152
+msgid "Recording..."
+msgstr "正在录音..."
+
+#: core/meeting/system_recorder_mac.py:234
+#: core/meeting/system_recorder_win.py:165
+#, python-brace-format
+msgid "Recording finished, MP3: {}, speech segments: {}"
+msgstr "录音完成，MP3：{}，语音片段：{}"
+
+#: core/meeting/system_recorder_mac.py:236
+#: core/meeting/system_recorder_win.py:167
+msgid "No audio recorded"
+msgstr "未录制到音频"
+
+#: core/meeting/system_recorder_mac.py:238
+msgid "Unable to start recording"
+msgstr "无法开始录音"
+
+#: core/meeting/system_recorder_win.py:40
+#, python-brace-format
+msgid "→ System audio device: {}"
+msgstr "→ 系统音频设备：{}"
+
+#: core/meeting/system_recorder_win.py:42
+#, python-brace-format
+msgid "→ Unable to initialize system audio: {}"
+msgstr "→ 无法初始化系统音频：{}"
+
+#: core/meeting/system_recorder_win.py:95
+msgid "→ [System] Queue is full"
+msgstr "→ [系统] 队列已满"
+
+#: core/meeting/system_recorder_win.py:106
+#, python-brace-format
+msgid "→ [System] Recording error: {}"
+msgstr "→ [系统] 录音错误：{}"
+
+#: core/meeting/system_recorder_win.py:149
+msgid "System audio recording test (5 seconds) - Windows"
+msgstr "系统音频录音测试（5秒）- Windows"
+
+#: core/meeting/transcription_processor.py:39
+msgid "→ 💡 System audio transcription thread started"
+msgstr "→ 💡 系统音频转录线程已启动"
+
+#: core/meeting/transcription_processor.py:73
+#, python-brace-format
+msgid "  → Starting ASR transcription, length: {:.1f} s ... "
+msgstr "  → 开始 ASR 转录，时长：{:.1f} 秒 ... "
+
+#: core/meeting/transcription_processor.py:78
+msgid "  → Warning: Audio too short, skipping transcription"
+msgstr "  → 警告：音频过短，跳过转录"
+
+#: core/meeting/transcription_processor.py:98
+#, python-brace-format
+msgid "  ✓ Transcription completed in {:.1f} s"
+msgstr "  ✓ 转录完成，用时 {:.1f} 秒"
+
+#: core/meeting/transcription_processor.py:100
+#, python-brace-format
+msgid "  ❌ Meeting transcription error: {}"
+msgstr "  ❌ 会议转录错误：{}"
+
+#: core/meeting/transcription_processor.py:119
+#, python-brace-format
+msgid "→ [Mic-{}] {}"
+msgstr "→ [麦克风-{}] {}"
+
+#: core/meeting/transcription_processor.py:121
+msgid "→ Transcription result is empty"
+msgstr "→ 转录结果为空"
+
+#: core/meeting/transcription_processor.py:135
+#, python-brace-format
+msgid "  → Meeting transcription error: {}"
+msgstr "  → 会议转录错误：{}"
+
+#: core/meeting/transcription_processor.py:147
+msgid "🎤 [System] Independent transcription processor started"
+msgstr "🎤 [系统] 独立转录处理器已启动"
+
+#: core/meeting/transcription_processor.py:157
+#, python-brace-format
+msgid "  → [System] Starting independent ASR transcription #{} ... "
+msgstr "  → [系统] 开始独立 ASR 转录 #{} ... "
+
+#: core/meeting/transcription_processor.py:173
+#, python-brace-format
+msgid "  → [System] Processing audio length: {:.1f}s"
+msgstr "  → [系统] 处理音频时长：{:.1f}秒"
+
+#: core/meeting/transcription_processor.py:176
+msgid "  → [System] Warning: Audio too short, skipping transcription"
+msgstr "  → [系统] 警告：音频过短，跳过转录"
+
+#: core/meeting/transcription_processor.py:194
+#, python-brace-format
+msgid "  ✓ [System] Transcription completed in {:.1f}s"
+msgstr "  ✓ [系统] 转录完成，用时 {:.1f} 秒"
+
+#: core/meeting/transcription_processor.py:196
+#, python-brace-format
+msgid "  ❌ [System] Transcription error: {}"
+msgstr "  ❌ [系统] 转录错误：{}"
+
+#: core/meeting/transcription_processor.py:215
+#, python-brace-format
+msgid "→ [System-{:02d}] {}"
+msgstr "→ [系统-{:02d}] {}"
+
+#: core/meeting/transcription_processor.py:217
+msgid "→ [System] Transcription result is empty"
+msgstr "→ [系统] 转录结果为空"
+
+#: core/meeting/transcription_processor.py:226
+#, python-brace-format
+msgid "  → [System] Independent transcription error: {}"
+msgstr "  → [系统] 独立转录错误：{}"
+
+#: core/meeting/transcription_processor.py:229
+msgid "🎤 [System] Independent transcription processor stopped"
+msgstr "🎤 [系统] 独立转录处理器已停止"
+
+#: core/meeting/transcription_processor.py:233
+msgid "⏳ Waiting for final transcriptions to complete..."
+msgstr "⏳ 正在等待最终转录完成..."
+
+#: core/meeting/transcription_processor.py:255
+#, python-brace-format
+msgid "  → {} mic + {} system segments remaining"
+msgstr "  → 剩余 {} 个麦克风片段 + {} 个系统片段"
+
+#: core/meeting/transcription_processor.py:259
+#, python-brace-format
+msgid "→ Error checking transcription queues: {}"
+msgstr "→ 检查转录队列出错：{}"
+
+#: core/meeting/transcription_processor.py:264
+msgid "→ Waiting for microphone transcription thread..."
+msgstr "→ 正在等待麦克风转录线程..."
+
+#: core/meeting/transcription_processor.py:267
+msgid "→ Warning: Microphone transcription thread did not terminate cleanly"
+msgstr "→ 警告：麦克风转录线程未正常终止"
+
+#: core/meeting/transcription_processor.py:270
+msgid "→ Waiting for system transcription thread..."
+msgstr "→ 正在等待系统转录线程..."
+
+#: core/meeting/transcription_processor.py:273
+msgid "→ Warning: System transcription thread did not terminate cleanly"
+msgstr "→ 警告：系统转录线程未正常终止"
+
+#: core/meeting/transcription_processor.py:276
+msgid "⚠️ Timeout waiting for transcriptions, some audio may not be processed"
+msgstr "⚠️ 等待转录超时，部分音频可能未被处理"
+
+#: core/tray/macos_tray.py:258 core/tray/macos_tray.py:264
+#: core/tray/macos_tray.py:302 core/tray/macos_tray.py:311
+#: core/tray/tray_animator.py:233 core/tray/tray_animator.py:269
+msgid "Hey Aura"
+msgstr "Hey Aura"
+
+#: core/tray/macos_tray.py:271 core/tray/macos_tray.py:326
+#: core/tray/tray_animator.py:219 core/tray/tray_animator.py:247
+msgid "Fn Key Dictation Mode"
+msgstr "Fn 键听写模式"
+
+#: core/tray/macos_tray.py:275 core/tray/macos_tray.py:330
+#: core/tray/tray_animator.py:220 core/tray/tray_animator.py:248
+msgid "Fn + Ctrl Command Mode"
+msgstr "Fn + Ctrl 指令模式"
+
+#: core/tray/macos_tray.py:282 core/tray/macos_tray.py:337
+#: core/tray/tray_animator.py:231 core/tray/tray_animator.py:263
+msgid "Quit"
+msgstr "退出"
+
+#: core/tray/macos_tray.py:318 core/tray/tray_animator.py:253
+msgid "Stop Meeting Recording"
+msgstr "停止会议录音"
+
+#: core/tray/macos_tray.py:318 core/tray/tray_animator.py:253
+msgid "Start Meeting Recording"
+msgstr "开始会议录音"
+
+#: core/tray/tray_animator.py:222 core/tray/tray_animator.py:250
+msgid "Ctrl+Win dictation"
+msgstr "Ctrl+Win 听写"
+
+#: core/tray/tray_animator.py:223 core/tray/tray_animator.py:251
+msgid "Win+Alt command mode"
+msgstr "Win+Alt 指令模式"
+
+#: core/tray/tray_animator.py:226 core/tray/tray_animator.py:256
+msgid "Hey Aura Voice Assistant"
+msgstr "Hey Aura 语音助手"

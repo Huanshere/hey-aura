@@ -1,0 +1,167 @@
+{
+    "icon_size": {
+      "width": 22,
+      "height": 22
+    },
+    "transform_matrix": {
+      "a": 0.72263,
+      "b": 0.691235,
+      "c": -0.72263,
+      "d": 0.691235
+    },
+    "main_path": {
+      "points": [
+        {"type": "move", "x": 17.96, "y": 4.79428},
+        {
+          "type": "curve",
+          "x": 17.96, "y": 13.8181,
+          "cp1_x": 20.5648, "cp1_y": 7.28607,
+          "cp2_x": 20.5649, "cp2_y": 11.3264
+        },
+        {
+          "type": "curve",
+          "x": 11.4789, "y": 15.4585,
+          "cp1_x": 16.2044, "cp1_y": 15.4973,
+          "cp2_x": 13.7139, "cp2_y": 16.0428
+        },
+        {
+          "type": "curve",
+          "x": 9.7641, "y": 12.6341,
+          "cp1_x": 11.1835, "cp1_y": 14.4243,
+          "cp2_x": 10.6133, "cp2_y": 13.4465
+        },
+        {
+          "type": "curve",
+          "x": 6.81077, "y": 10.9931,
+          "cp1_x": 8.91465, "cp1_y": 11.8216,
+          "cp2_x": 7.89219, "cp2_y": 11.2757
+        },
+        {
+          "type": "curve",
+          "x": 8.52631, "y": 4.79428,
+          "cp1_x": 6.20017, "cp1_y": 8.85541,
+          "cp2_x": 6.77098, "cp2_y": 6.47352
+        },
+        {
+          "type": "curve",
+          "x": 17.96, "y": 4.79428,
+          "cp1_x": 11.1313, "cp1_y": 2.3025,
+          "cp2_x": 15.3551, "cp2_y": 2.3025
+        }
+      ]
+    },
+    "cutouts": [
+      {
+        "name": "cutout1",
+        "radius": 1.39102,
+        "tx": 7.5918,
+        "ty": 8.9696,
+        "offset": 0.1
+      },
+      {
+        "name": "cutout2",
+        "radius": 1.39102,
+        "tx": 11.6125,
+        "ty": 12.8157,
+        "offset": 0.1
+      }
+    ],
+    "dots": {
+      "row1": [
+        {
+          "name": "r1_c1",
+          "type": "circle",
+          "radius": 1.39102,
+          "tx": 5.58142,
+          "ty": 7.04663,
+          "transform": true
+        },
+        {
+          "name": "r1_c2",
+          "type": "circle",
+          "radius": 1.39102,
+          "tx": 9.60217,
+          "ty": 10.8927,
+          "transform": true
+        },
+        {
+          "name": "r1_c3",
+          "type": "circle",
+          "radius": 1.39102,
+          "tx": 13.6229,
+          "ty": 14.7388,
+          "transform": true
+        }
+      ],
+      "row2": [
+        {
+          "name": "r2_c1",
+          "type": "circle",
+          "radius": 1.28402,
+          "tx": 5.65881,
+          "ty": 11.0608,
+          "transform": true
+        },
+        {
+          "name": "r2_c2",
+          "type": "circle",
+          "radius": 1.28402,
+          "tx": 9.67957,
+          "ty": 14.9069,
+          "transform": true
+        }
+      ],
+      "row3": [
+        {
+          "name": "r3_c1",
+          "type": "ellipse",
+          "x": 5.7842,
+          "y": 16.7414,
+          "rx": 0.984154,
+          "ry": 0.941399,
+          "transform": false
+        }
+      ]
+    },
+    "animation": {
+      "breathing_speed": 0.4,
+      "breathing_min_alpha": 0.4,
+      "breathing_max_alpha": 0.8,
+      "frame_interval": 0.1,
+      "state_switch_frames": 5
+    },
+    "states": {
+      "idle": {
+        "main_path": {"alpha": 1.0},
+        "dots": {
+          "row1": {"visible": true, "alpha": 1.0},
+          "row2": {"visible": true, "alpha": 1.0},
+          "row3": {"visible": true, "alpha": 1.0}
+        }
+      },
+      "recording": {
+        "main_path": {"alpha": "breathing"},
+        "dots": {
+          "row1": {"visible": true, "alpha": 1.0},
+          "row2": {"visible": true, "alpha": "breathing"},
+          "row3": {"visible": true, "alpha": 1.0}
+        }
+      },
+      "processing": {
+        "main_path": {"alpha": 1.0},
+        "dots": {
+          "row1": {"visible": true, "alpha": 1.0},
+          "row2": {"visible": "state >= 1", "alpha": 1.0},
+          "row3": {"visible": "state == 2", "alpha": 1.0}
+        }
+      },
+      "meeting_recording": {
+        "main_path": {"alpha": "breathing"},
+        "dots": {
+          "row1": {"visible": true, "alpha": "breathing"},
+          "row2": {"visible": true, "alpha": "breathing"},
+          "row3": {"visible": true, "alpha": "breathing"}
+        }
+      }
+    }
+  }

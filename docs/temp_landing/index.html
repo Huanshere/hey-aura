@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hey Aura - Voice as Command, Words as Thoughts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'Noto Sans JP', 'Microsoft YaHei', sans-serif;
+            background: #FAF9F5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 183, 94, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 138, 120, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 205, 178, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(139, 100, 80, 0.1);
+            animation: float 6s ease-in-out infinite;
+            position: relative;
+            border: 1px solid rgba(255, 183, 94, 0.2);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .emoji-decoration {
+            position: absolute;
+            font-size: 30px;
+            animation: spin 20s linear infinite;
+        }
+        
+        .emoji-1 { top: -30px; left: 20px; }
+        .emoji-2 { top: -30px; right: 20px; }
+        .emoji-3 { bottom: -30px; left: 50%; transform: translateX(-50%); }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #FF8A78;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: rainbow 5s ease-in-out infinite;
+            text-shadow: 2px 2px 10px rgba(255, 138, 120, 0.2);
+        }
+        
+        @keyframes rainbow {
+            0%, 100% { color: #FF8A78; }
+            25% { color: #FFB75E; }
+            50% { color: #FF9A8B; }
+            75% { color: #FFCDB2; }
+        }
+        
+        .tagline {
+            text-align: center;
+            color: #8B6450;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .muffin-box {
+            background: linear-gradient(135deg, #FFE5D9 0%, #FFCDB2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 183, 94, 0.3);
+        }
+        
+        .muffin-box::before {
+            content: "🧁";
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.15;
+            right: -20px;
+            top: -20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .muffin-text {
+            color: #6B4E45;
+            font-size: 1.1em;
+            line-height: 1.8;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .features {
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: linear-gradient(135deg, #FFF5F0 0%, #FFE8DC 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 183, 94, 0.2);
+        }
+        
+        .feature:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(255, 138, 120, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 30px;
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        .feature-text {
+            color: #6B4E45;
+            font-size: 1.05em;
+        }
+        
+        .feature-text strong {
+            color: #FF8A78;
+        }
+        
+        .github-link {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #FF8A78 0%, #FFB75E 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(255, 138, 120, 0.3);
+        }
+        
+        .github-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 138, 120, 0.4);
+        }
+        
+        .lang-switcher {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+        
+        .lang-btn {
+            background: white;
+            border: 2px solid #FFCDB2;
+            padding: 5px 15px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #8B6450;
+        }
+        
+        .lang-btn:hover {
+            border-color: #FF8A78;
+            color: #FF8A78;
+            background: #FFF5F0;
+        }
+        
+        .lang-btn.active {
+            background: linear-gradient(135deg, #FF8A78 0%, #FFB75E 100%);
+            color: white;
+            border-color: #FF8A78;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            .container { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="emoji-decoration emoji-1">🎤</span>
+        <span class="emoji-decoration emoji-2">✨</span>
+        <span class="emoji-decoration emoji-3">🚀</span>
+        
+        <h1>Hey Aura</h1>
+        <p class="tagline" id="tagline">
+            <strong data-i18n="tagline-main">声音即指令，文字即思想</strong><br>
+            <span data-i18n="tagline-sub">不打字，只动嘴。本地运行，完全隐私。</span>
+        </p>
+        
+        <div class="muffin-box">
+            <div class="muffin-text">
+                <strong data-i18n="muffin-title">🧁 设计师正在偷懒吃 muffin 中...</strong><br>
+                <span data-i18n="muffin-text">精美的 Landing Page 即将到来！</span><br>
+                <small style="opacity: 0.8;" data-i18n="muffin-flavor">（还有巧克力味和抹茶味的呢）</small>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">📹</span>
+                <span class="feature-text"><strong data-i18n="feature-meeting">会议模式</strong> - <span data-i18n="feature-meeting-desc">实时转录，AI总结</span></span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎙️</span>
+                <span class="feature-text"><strong data-i18n="feature-dictation">听写模式</strong> - <span data-i18n="feature-dictation-desc">语音输入，效率3倍</span></span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🤖</span>
+                <span class="feature-text"><strong data-i18n="feature-command">命令模式</strong> - <span data-i18n="feature-command-desc">声控电脑，解放双手</span></span>
+            </div>
+        </div>
+        
+        <a href="https://github.com/Huanshere/hey-aura" class="github-link" target="_blank">
+            <span data-i18n="github-link">🌟 访问 GitHub 了解更多</span>
+        </a>
+        
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="switchLang('zh')">中文</button>
+            <button class="lang-btn" onclick="switchLang('en')">English</button>
+            <button class="lang-btn" onclick="switchLang('ja')">日本語</button>
+        </div>
+    </div>
+    
+    <script>
+        const translations = {
+            zh: {
+                'tagline-main': '声音即指令，文字即思想',
+                'tagline-sub': '不打字，只动嘴。本地运行，完全隐私。',
+                'muffin-title': '🧁 设计师正在偷懒吃 muffin 中...',
+                'muffin-text': '精美的 Landing Page 即将到来！',
+                'muffin-flavor': '（还有巧克力味和抹茶味的呢）',
+                'feature-meeting': '会议模式',
+                'feature-meeting-desc': '实时转录，AI总结',
+                'feature-dictation': '听写模式',
+                'feature-dictation-desc': '语音输入，效率3倍',
+                'feature-command': '命令模式',
+                'feature-command-desc': '声控电脑，解放双手',
+                'github-link': '🌟 访问 GitHub 了解更多'
+            },
+            en: {
+                'tagline-main': 'Voice as Command, Words as Thoughts',
+                'tagline-sub': 'No typing, just talking. Runs locally, complete privacy.',
+                'muffin-title': '🧁 Designer is lazily eating muffins...',
+                'muffin-text': 'Beautiful Landing Page coming soon!',
+                'muffin-flavor': '(Including chocolate and matcha flavors!)',
+                'feature-meeting': 'Meeting Mode',
+                'feature-meeting-desc': 'Real-time transcription, AI summary',
+                'feature-dictation': 'Dictation Mode',
+                'feature-dictation-desc': 'Voice input, 3x efficiency',
+                'feature-command': 'Command Mode',
+                'feature-command-desc': 'Voice control, hands-free',
+                'github-link': '🌟 Visit GitHub to Learn More'
+            },
+            ja: {
+                'tagline-main': '声が指令、言葉が思想',
+                'tagline-sub': 'タイピング不要、話すだけ。ローカル実行、完全プライバシー。',
+                'muffin-title': '🧁 デザイナーがマフィンを食べてサボり中...',
+                'muffin-text': '素敵なランディングページがもうすぐ！',
+                'muffin-flavor': '（チョコレート味と抹茶味もありますよ）',
+                'feature-meeting': '会議モード',
+                'feature-meeting-desc': 'リアルタイム文字起こし、AI要約',
+                'feature-dictation': 'ディクテーションモード',
+                'feature-dictation-desc': '音声入力、3倍の効率',
+                'feature-command': 'コマンドモード',
+                'feature-command-desc': '音声制御、ハンズフリー',
+                'github-link': '🌟 GitHubで詳細を見る'
+            }
+        };
+        
+        let currentLang = 'zh';
+        
+        function switchLang(lang) {
+            currentLang = lang;
+            
+            // Update active button
+            const buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update page language
+            document.documentElement.lang = lang;
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Update page title
+            const titles = {
+                zh: 'Hey Aura - 声音即指令，文字即思想',
+                en: 'Hey Aura - Voice as Command, Words as Thoughts',
+                ja: 'Hey Aura - 声が指令、言葉が思想'
+            };
+            document.title = titles[lang];
+            
+            // Add a fun animation when switching languages
+            const container = document.querySelector('.container');
+            container.style.animation = 'none';
+            setTimeout(() => {
+                container.style.animation = 'float 6s ease-in-out infinite';
+            }, 10);
+            
+            // Show a cute notification
+            showNotification(lang);
+        }
+        
+        function showNotification(lang) {
+            const messages = {
+                zh: '已切换到中文 🎉',
+                en: 'Switched to English 🎉',
+                ja: '日本語に切り替えました 🎉'
+            };
+            
+            const notification = document.createElement('div');
+            notification.textContent = messages[lang];
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, #FF8A78 0%, #FFB75E 100%);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: slideDown 0.5s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+        
+        // Add slide down animation for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from {
+                    top: -50px;
+                    opacity: 0;
+                }
+                to {
+                    top: 20px;
+                    opacity: 1;
+                }
+            }
+            @keyframes floatUp {
+                to {
+                    bottom: 110vh;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Random floating notes - with warm colors
+        document.addEventListener('DOMContentLoaded', function() {
+            setInterval(() => {
+                const note = document.createElement('div');
+                note.innerHTML = ['🎵', '🎶', '🎼', '🎤', '✨'][Math.floor(Math.random() * 5)];
+                note.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    bottom: -50px;
+                    font-size: 20px;
+                    opacity: 0.3;
+                    pointer-events: none;
+                    animation: floatUp 8s linear forwards;
+                `;
+                document.body.appendChild(note);
+                setTimeout(() => note.remove(), 8000);
+            }, 3000);
+            
+            // Add floating bubbles
+            setInterval(() => {
+                const bubble = document.createElement('div');
+                bubble.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    bottom: -50px;
+                    width: ${Math.random() * 20 + 10}px;
+                    height: ${Math.random() * 20 + 10}px;
+                    background: radial-gradient(circle, rgba(255, 183, 94, 0.3), rgba(255, 138, 120, 0.2));
+                    border-radius: 50%;
+                    pointer-events: none;
+                    animation: floatUp ${Math.random() * 5 + 10}s linear forwards;
+                `;
+                document.body.appendChild(bubble);
+                setTimeout(() => bubble.remove(), 15000);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

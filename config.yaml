@@ -1,0 +1,29 @@
+llm:
+  model: moonshotai/kimi-k2-instruct
+  base_url: https://api.groq.com/openai/v1
+  api_key: gsk_your_api_key
+
+asr:
+  model: whisper-large-v3-turbo
+  language: zh
+
+ui_language: auto # Options: auto en zh
+
+web_llm: pplx  # Options: chatgpt, claude, kimi, deepseek, pplx
+
+repo_watch_directories:
+  - "~/Desktop"
+
+# Text rewriting configuration
+dictation_rewrite:
+  enabled: false  # Enable LLM-based text rewriting for dictation mode only
+  hotwords:      # Proper nouns and terms to preserve/correct
+    - ChatGPT
+    - Anthropic
+    - Claude Code
+
+n8n:
+  username: 
+  password: 
+  get_emails_url: 
+  respond_to_email_url: 

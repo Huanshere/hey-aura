@@ -1,0 +1,34 @@
+sounddevice
+numpy
+scipy
+pynput
+pyperclip
+noisereduce
+pyautogui
+openai
+ollama
+ruamel.yaml
+soundfile
+librosa
+babel
+pyannote.audio
+opencc
+pydub
+pyloudnorm
+soundcard
+pywin32; sys_platform == 'win32'
+onnxruntime
+
+# Tray dependencies
+pystray
+pyobjc; sys_platform == 'darwin'
+pillow
+
+# whisper backends
+faster-whisper; sys_platform == 'win32'
+mlx-whisper; sys_platform == 'darwin'
+
+# Additional ASR models
+# funasr
+# parakeet-mlx
+# nemo_toolkit[asr]
