@@ -88,8 +88,8 @@
 #### 选择你的平台
 
 [![Windows CUDA下载](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1i2tCK6BOYSmDTzqpkAMd1FZfaW6OqKmk/view?usp=sharing)
-[![Windows CPU下载](https://img.shields.io/badge/Windows%20CPU-下载-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
-[![macOS下载](https://img.shields.io/badge/macOS-下载-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
+[![Windows CPU下载](https://img.shields.io/badge/Windows%20CPU-X64-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
+[![macOS下载](https://img.shields.io/badge/macOS-M系列芯片-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
 
 #### 下载使用方法
 

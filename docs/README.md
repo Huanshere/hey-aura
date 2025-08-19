@@ -87,8 +87,8 @@
 #### Choose Your Platform
 
 [![Windows CUDA Download](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1i2tCK6BOYSmDTzqpkAMd1FZfaW6OqKmk/view?usp=sharing)
-[![Windows CPU Download](https://img.shields.io/badge/Windows%20CPU-Download-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
-[![macOS Download](https://img.shields.io/badge/macOS-Download-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
+[![Windows CPU Download](https://img.shields.io/badge/Windows%20CPU-X64-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
+[![macOS Download](https://img.shields.io/badge/macOS-Apple%20Silicon-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
 
 #### Download Instructions
 
