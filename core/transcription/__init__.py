@@ -19,7 +19,7 @@ def create_transcriber(model_type: str) -> TranscriptionModel:
         return WhisperTranscriber(whisper_model)
     elif model_type == "parakeet":
         from .parakeet import NeMoTranscriber
-        return NeMoTranscriber("nvidia/parakeet-tdt-0.6b-v2")
+        return NeMoTranscriber()
     elif model_type == "funasr":
         from .funasr_ import FunASRTranscriber
         return FunASRTranscriber("iic/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch")

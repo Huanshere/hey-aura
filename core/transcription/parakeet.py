@@ -20,7 +20,7 @@ from core.i18n import _
 class NeMoTranscriber(TranscriptionModel):
     """NeMo/Parakeet transcription model implementation"""
     
-    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v2", **kwargs):
+    def __init__(self, model_name: str = "nvidia/parakeet-tdt-0.6b-v3", **kwargs):
         super().__init__(model_name, **kwargs)
         self.model = None
         self.backend = None
@@ -31,14 +31,14 @@ class NeMoTranscriber(TranscriptionModel):
         """Initialize NeMo/Parakeet model"""
         if self.is_initialized: return
         
-        print(f"→ {_('Initializing transcription model')}: {self.model_name}")
+        print(f"→ {_('Initializing transcription model')}: parakeet")
         start = time.time()
         
         os.environ["HF_HUB_CACHE"] = os.path.join(os.getcwd(), "models")
         if platform.system() == "Darwin":
             print(f"  {_('Using parakeet-mlx (macOS)')}")
             from parakeet_mlx import from_pretrained
-            self.model = from_pretrained("mlx-community/parakeet-tdt-0.6b-v2")
+            self.model = from_pretrained("mlx-community/parakeet-tdt-0.6b-v3")
             self.backend, self.device = "mlx", "mps"
         else:
             print(f"  {_('Using NeMo')}")
@@ -83,7 +83,9 @@ class NeMoTranscriber(TranscriptionModel):
         return getattr(results[0], "text", "") if results else ""
     
     def get_supported_languages(self) -> list:
-        return ['en']
+        return ['bg', 'hr', 'cs', 'da', 'nl', 'en', 'et', 'fi', 'fr', 'de', 'el', 
+                'hu', 'it', 'lv', 'lt', 'mt', 'pl', 'pt', 'ro', 'sk', 'sl', 'es', 
+                'sv', 'ru', 'uk']
 
 
 if __name__ == "__main__":
