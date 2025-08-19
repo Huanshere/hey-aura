@@ -2,10 +2,7 @@ import requests
 from ruamel.yaml import YAML
 from pathlib import Path
 
-yaml = YAML(typ='safe')
-config_path = Path(__file__).resolve().parents[2] / "config.yaml"
-with config_path.open("r", encoding="utf-8") as f:
-    config = yaml.load(f) or {}
+config = YAML(typ='safe').load(Path("config.yaml")) or {}
 
 n8n_cfg = config.get("n8n", {})
 username = n8n_cfg.get("username")
