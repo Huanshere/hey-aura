@@ -6,6 +6,7 @@ import pyloudnorm as pyln
 import os
 import warnings
 from .i18n import _
+import onnxruntime
 
 class AudioDeviceSelector:
     @staticmethod
@@ -79,15 +80,7 @@ class SileroVAD:
             return
             
         try:
-            import onnxruntime
-            
-            # Find ONNX model path
-            models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'models')
-            onnx_model_path = os.path.join(models_dir, 'snakers4_silero-vad_master', 'src', 'silero_vad', 'data', 'silero_vad.onnx')
-            
-            if not os.path.exists(onnx_model_path):
-                raise FileNotFoundError(f"ONNX model not found: {onnx_model_path}")
-            
+            onnx_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'silero_vad.onnx')
             # Create ONNX inference session with optimized settings
             opts = onnxruntime.SessionOptions()
             opts.inter_op_num_threads = 1
