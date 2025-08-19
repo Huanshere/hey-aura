@@ -95,7 +95,11 @@
 
 > Windows 双击运行 `Start_Windows.bat`
 
-> macOS 用户首次运行需在终端执行 `chmod +x Start_MacOS.command` 赋予权限 然后双击运行
+> macOS 用户首次运行需要先赋予执行权限：
+> 1. 打开终端，使用 `cd` 命令进入 hey-aura 目录
+> 2. 执行 `chmod +x Start_MacOS.command` 赋予权限
+> 3. 双击 `Start_MacOS.command` 文件运行
+> 4. 如果双击无法执行，可在终端中运行 `./Start_MacOS.command`
 
 > 首次运行环境加载会较慢，请耐心等待一分钟；整合包打包了 `whisper-large-v3-turbo` 模型，如需使用其他模型请修改 `config.yaml` 并重新启动应用，会在启动时自动下载。
 
