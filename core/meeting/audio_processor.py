@@ -146,14 +146,14 @@ class MeetingAudioProcessor:
                         chunk_energy = np.mean(np.abs(audio_chunk))
 
                         # Pre-filter, only run VAD on audio with enough energy
-                        if chunk_energy > 0.04:
+                        if chunk_energy > 0.04 and self.microphone_vad is not None:
                             try:
                                 chunk_has_speech = self.microphone_vad.is_speech_realtime(audio_chunk, self.transcriber_ref.sr)
                             except Exception as e:
                                 print(_("→ [Mic] VAD detection error: {}").format(e))
                                 chunk_has_speech = False
                         else:
-                            # Skip VAD detection for low energy audio
+                            # Skip VAD detection for low energy audio or if VAD is None
                             chunk_has_speech = False
 
                         chunk_duration = len(audio_chunk) / self.transcriber_ref.sr
@@ -233,6 +233,11 @@ class MeetingAudioProcessor:
 
     def _process_system_audio(self):
         """System audio processing and buffer storage."""
+        # Check if system recorder is in skip mode
+        if self.system_recorder and hasattr(self.system_recorder, 'skip_system_recording') and self.system_recorder.skip_system_recording:
+            print(_("→ [System] Skipping system audio processing (built-in speaker mode)"))
+            return
+            
         while hasattr(self.transcriber_ref, 'meeting_recorder') and self.transcriber_ref.meeting_recorder.meeting_mode and not self.transcriber_ref.meeting_recorder.meeting_stopping:
             if self.system_recorder:
                 try:
@@ -325,6 +330,14 @@ class MeetingAudioProcessor:
         # Get system audio buffer data
         with self.system_audio_buffer_lock:
             system_audio = self._bytes_to_audio(self.system_audio_buffer)
+
+        # Check if we were in built-in speaker mode
+        if self.system_recorder and hasattr(self.system_recorder, 'skip_system_recording'):
+            was_builtin_speaker = getattr(self.system_recorder, 'skip_system_recording', False)
+            if was_builtin_speaker:
+                print(_("→ Built-in speaker mode: Using microphone audio only (includes speaker audio)"))
+                print(_("→ Microphone audio length: {:.1f}s").format(len(mic_audio)/self.transcriber_ref.sr))
+                return mic_audio
 
         # If system audio exists, mix
         if len(system_audio) > 0:
