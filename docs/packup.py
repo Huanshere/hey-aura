@@ -10,6 +10,9 @@ Functions:
 """
 
 """
+On Windows:
+python_env\python.exe -m pip install -e .
+
 On MacOS, Pack the conda env:
 # 1) 建环境并安装你的项目
 conda create -n hey-aura-pack python=3.10 -y
