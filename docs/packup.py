@@ -56,10 +56,10 @@ def collect_files(root, include_dirs):
                 # Platform-specific model selection
                 allowed_models = []
                 
-                if platform.system() == "Windows":
-                    allowed_models.append(os.path.join("models", "models--mobiuslabsgmbh--faster-whisper-large-v3-turbo"))
-                else:  # macOS
-                    allowed_models.append(os.path.join("models", "models--mlx-community--whisper-large-v3-turbo"))
+                # if platform.system() == "Windows":
+                #     allowed_models.append(os.path.join("models", "models--mobiuslabsgmbh--faster-whisper-large-v3-turbo"))
+                # else:  # macOS
+                #     allowed_models.append(os.path.join("models", "models--mlx-community--whisper-large-v3-turbo"))
                 
                 for allowed_model in allowed_models:
                     model_abs_path = os.path.join(root, allowed_model)
