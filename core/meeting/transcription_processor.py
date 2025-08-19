@@ -33,16 +33,10 @@ class MeetingTranscriptionProcessor:
         self.meeting_transcription_thread = threading.Thread(target=self._process_microphone_transcription, daemon=True)
         self.meeting_transcription_thread.start()
 
-        # Only start system audio transcription if not in built-in speaker mode
-        if (hasattr(self.audio_processor, 'system_recorder') and 
-            self.audio_processor.system_recorder and 
-            not getattr(self.audio_processor.system_recorder, 'skip_system_recording', False)):
-            # Start system audio transcription thread
-            self.system_transcription_thread = threading.Thread(target=self._process_system_transcription, daemon=True)
-            self.system_transcription_thread.start()
-            print(_("→ 💡 System audio transcription thread started"))
-        else:
-            print(_("→ Skipping system audio transcription (built-in speaker mode)"))
+        # Start system audio transcription thread
+        self.system_transcription_thread = threading.Thread(target=self._process_system_transcription, daemon=True)
+        self.system_transcription_thread.start()
+        print(_("→ 💡 System audio transcription thread started"))
 
     def _process_microphone_transcription(self):
         """Process microphone audio queue and transcribe."""
@@ -72,13 +66,9 @@ class MeetingTranscriptionProcessor:
                 segment_audio = self.transcriber_ref.audio_enhancer.enhance_audio(segment_audio)
 
                 # Extract speech segments using microphone VAD
-                if self.audio_processor.microphone_vad is not None:
-                    processed_audio = self.audio_processor.microphone_vad.extract_speech_segments(
-                        segment_audio, self.transcriber_ref.sr, SPEECH_PADDING_MS
-                    )
-                else:
-                    print(_("  → Warning: Microphone VAD is None, using raw audio"))
-                    processed_audio = segment_audio
+                processed_audio = self.audio_processor.microphone_vad.extract_speech_segments(
+                    segment_audio, self.transcriber_ref.sr, SPEECH_PADDING_MS
+                )
 
                 print(_("  → Starting ASR transcription, length: {:.1f} s ... ").format(
                     processed_audio.size / self.transcriber_ref.sr
@@ -175,13 +165,9 @@ class MeetingTranscriptionProcessor:
                 segment_audio = self.transcriber_ref.audio_enhancer.enhance_audio(segment_audio)
 
                 # Extract speech segments using system VAD (independent instance)
-                if self.audio_processor.system_vad is not None:
-                    processed_audio = self.audio_processor.system_vad.extract_speech_segments(
-                        segment_audio, self.transcriber_ref.sr, SPEECH_PADDING_MS
-                    )
-                else:
-                    print(_("  → [System] Warning: System VAD is None, using raw audio"))
-                    processed_audio = segment_audio
+                processed_audio = self.audio_processor.system_vad.extract_speech_segments(
+                    segment_audio, self.transcriber_ref.sr, SPEECH_PADDING_MS
+                )
 
                 duration = processed_audio.size / self.transcriber_ref.sr
                 print(_("  → [System] Processing audio length: {:.1f}s").format(duration))
@@ -256,11 +242,11 @@ class MeetingTranscriptionProcessor:
         while (time.time() - start_wait < max_wait_time):
             try:
                 mic_queue_size = self.audio_processor.meeting_audio_queue.qsize()
-                sys_queue_size = self.audio_processor.system_audio_queue.qsize() if self.system_transcription_thread else 0
+                sys_queue_size = self.audio_processor.system_audio_queue.qsize()
 
                 # Check if transcription is still active or there are items in the queue
                 mic_busy = mic_queue_size > 0 or self.meeting_transcription_active
-                sys_busy = (sys_queue_size > 0 or self.system_transcription_active) if self.system_transcription_thread else False
+                sys_busy = sys_queue_size > 0 or self.system_transcription_active
 
                 if not mic_busy and not sys_busy:
                     break
