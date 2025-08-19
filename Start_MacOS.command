@@ -24,6 +24,23 @@ fi
 ENV_DIR="./python_env"
 TARBALL="./hey-aura-macos-aarch64.tar.gz"
 
+# First try Conda environment 'hey-aura'
+echo "Checking for Conda environment 'hey-aura'..."
+if command -v conda >/dev/null 2>&1; then
+  # shellcheck source=/dev/null
+  source "$(conda info --base)/etc/profile.d/conda.sh"
+  if conda env list | awk '{print $1}' | grep -qx "hey-aura"; then
+    echo "Using Conda environment 'hey-aura'"
+    conda activate hey-aura
+    exec python app.py
+  else
+    echo "Conda environment 'hey-aura' not found, checking for portable environment..."
+  fi
+else
+  echo "Conda not available, checking for portable environment..."
+fi
+
+# Fall back to portable environment
 if [ -d "$ENV_DIR" ]; then
   echo "Using portable environment at $ENV_DIR"
   exec "$ENV_DIR/bin/python" app.py
@@ -42,18 +59,8 @@ if [ -f "$TARBALL" ]; then
   exec "$ENV_DIR/bin/python" app.py
 fi
 
-echo "Portable env not found; falling back to Conda env 'hey-aura'..."
-if command -v conda >/dev/null 2>&1; then
-  # shellcheck source=/dev/null
-  source "$(conda info --base)/etc/profile.d/conda.sh"
-  if conda env list | awk '{print $1}' | grep -qx "hey-aura"; then
-    conda activate hey-aura
-    exec python app.py
-  else
-    echo "Conda environment 'hey-aura' not found." >&2
-    exit 1
-  fi
-else
-  echo "Conda not available. Provide $TARBALL or install Conda env 'hey-aura'." >&2
-  exit 1
-fi
+echo "No suitable Python environment found." >&2
+echo "Please either:" >&2
+echo "  1. Create Conda environment 'hey-aura'" >&2
+echo "  2. Provide $TARBALL" >&2
+exit 1
