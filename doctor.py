@@ -41,12 +41,70 @@ def test_asr_backend():
 def test_llm():
     print("\n=== Testing LLM ===")
     from core.command_mode import command_mode, cfg
-    print(f"→ Model: {cfg['model']}\n→ URL: {cfg['base_url']}\n→ Test: 'hey there'")
+    llm_cfg = cfg['llm']
+    print(f"→ Model: {llm_cfg['model']}\n→ URL: {llm_cfg['base_url']}\n→ Test: 'hey there'")
     command_mode("hey there")
     print("✅ LLM completed")
 
+def test_macos_file_permissions():
+    print("\n=== Testing macOS File Permissions ===")
+    if platform.system() != "Darwin":
+        print("⏭️  Skipped (macOS only)")
+        return
+    
+    warnings = []
+    
+    try:
+        # Test reading/writing to current directory (most important for Hey Aura)
+        current_dir = Path.cwd()
+        test_file = current_dir / "test_permission_file"
+        try:
+            test_file.write_text("test")
+            content = test_file.read_text()
+            test_file.unlink()
+            if content == "test":
+                print("✅ Current directory read/write access")
+            else:
+                warnings.append("File read/write test failed")
+        except PermissionError:
+            warnings.append("Cannot read/write in current directory")
+            warnings.append("To fix file permissions:\n" +
+                           "   1. Check directory ownership: ls -la\n" +
+                           "   2. Ensure you have write permissions to this directory\n" +
+                           "   3. Try running: chmod 755 .")
+        
+        # Test writing to user directory (for config and recordings)
+        home_dir = Path.home()
+        test_file = home_dir / ".hey_aura_test"
+        try:
+            test_file.write_text("test")
+            test_file.unlink()
+            print("✅ User directory write access")
+        except PermissionError:
+            warnings.append("Cannot write to user directory")
+        
+        # Test creating recordings directory if it doesn't exist
+        recordings_dir = current_dir / "recordings"
+        try:
+            recordings_dir.mkdir(exist_ok=True)
+            test_recording = recordings_dir / "test_recording.txt"
+            test_recording.write_text("test")
+            test_recording.unlink()
+            print("✅ Recordings directory access")
+        except PermissionError:
+            warnings.append("Cannot create or write to recordings directory")
+        
+    except Exception as e:
+        warnings.append(f"File permission check failed: {e}")
+    
+    if warnings:
+        for warning in warnings:
+            print(f"⚠️  {warning}")
+    else:
+        print("✅ All required file permissions granted")
+
 def test_macos_permissions():
-    print("\n=== Testing macOS Permissions ===")
+    print("\n=== Testing macOS Input/Accessibility Permissions ===")
     if platform.system() != "Darwin":
         print("⏭️  Skipped (macOS only)")
         return
@@ -152,7 +210,7 @@ def check_system_health():
         ("Silero VAD", test_silero_vad),
         ("ASR Backend", test_asr_backend),
         ("LLM", test_llm),
-        ("macOS Permissions", test_macos_permissions)
+        ("macOS Input/Accessibility Permissions", test_macos_permissions)
     ]
     
     for name, test_fn in critical_tests:
@@ -164,6 +222,7 @@ def check_system_health():
             raise RuntimeError(f"Critical system component '{name}' failed: {e}")
     
     # Non-critical tests (warnings only)
+    test_macos_file_permissions()
     test_macos_audio_setup()
     
     print("\n✅ System health check passed!")

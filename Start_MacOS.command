@@ -2,6 +2,25 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# Check and fix directory permissions
+echo "Checking directory permissions..."
+if [ ! -w "." ]; then
+  echo "Directory is not writable, attempting to fix permissions..."
+  chmod 755 . || {
+    echo "Warning: Could not fix directory permissions. You may need to run:"
+    echo "  chmod 755 $(pwd)"
+    echo "  or contact your system administrator."
+  }
+fi
+
+# Ensure recordings directory exists and is writable
+if [ ! -d "recordings" ]; then
+  echo "Creating recordings directory..."
+  mkdir -p recordings || {
+    echo "Warning: Could not create recordings directory."
+  }
+fi
+
 ENV_DIR="./python_env"
 TARBALL="./hey-aura-macos-aarch64.tar.gz"
 
