@@ -54,9 +54,7 @@ def collect_files(root, include_dirs):
             # Special handling for the models folder
             if folder == "models":
                 # Platform-specific model selection
-                allowed_models = [
-                    os.path.join("models", "snakers4_silero-vad_master")
-                ]
+                allowed_models = []
                 
                 if platform.system() == "Windows":
                     allowed_models.append(os.path.join("models", "models--mobiuslabsgmbh--faster-whisper-large-v3-turbo"))
