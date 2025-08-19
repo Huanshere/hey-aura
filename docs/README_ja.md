@@ -82,21 +82,34 @@
 
 </details>
 
-### ⚡ 方法1：オールインワンパッケージ 1分で開始
+### ⚡ 方法1：環境パッケージ 1分で開始
 
 #### プラットフォームを選択
 
-[![Windows CUDA ダウンロード](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
-![Windows CPU ダウンロード](https://img.shields.io/badge/Windows%20CPU-近日公開-blue?style=for-the-badge&logo=windows&logoColor=white)
-![macOS ダウンロード](https://img.shields.io/badge/macOS-近日公開-black?style=for-the-badge&logo=apple&logoColor=white)
+[![Windows CUDA ダウンロード](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1i2tCK6BOYSmDTzqpkAMd1FZfaW6OqKmk/view?usp=sharing)
+[![Windows CPU ダウンロード](https://img.shields.io/badge/Windows%20CPU-ダウンロード-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
+[![macOS ダウンロード](https://img.shields.io/badge/macOS-ダウンロード-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
 
-#### ダウンロード → 実行 → 話す、これだけです
+#### ダウンロード使用方法
 
-> Windows：`Start_Windows.bat`をダブルクリックで実行
+**準備作業：**
+1. プロジェクトコードをダウンロード
+2. 対応プラットフォームの環境パッケージをダウンロード
 
-> macOS：初回実行時はターミナルで `chmod +x Start_MacOS.command` で権限付与後、ダブルクリックで実行
+**Windows ユーザー：**
+1. ダウンロードした zip ファイルを解凍
+2. 解凍した `python_env` フォルダをプロジェクトルートディレクトリに配置
+3. `Start_Windows.bat` をダブルクリックで実行
 
-> 初回実行は環境読み込みに時間がかかります。1分程度お待ちください。パッケージには `whisper-large-v3-turbo` モデルが含まれています。他のモデルを使用する場合は `config.yaml` を修正して再起動すると、起動時に自動ダウンロードされます。
+**macOS ユーザー：**
+1. ダウンロードした *.tar.gz 環境パッケージをプロジェクトルートディレクトリに配置
+2. 初回実行時は実行権限を付与：
+   - ターミナルを開き、`cd` コマンドで hey-aura ディレクトリに移動
+   - `chmod +x Start_MacOS.command` を実行
+3. `Start_MacOS.command` をダブルクリックで実行
+   - ダブルクリックで実行できない場合は、ターミナルで `./Start_MacOS.command` を実行
+
+> 初回実行は環境読み込みに時間がかかります。1分程度お待ちください。ASRモデルは起動時に自動ダウンロードされます。
 
 ### 方法2：ソースコードインストール
 

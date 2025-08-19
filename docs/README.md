@@ -82,21 +82,34 @@
 
 </details>
 
-### ⚡ Method 1: One-Click Package - Start Using in 1 Minute
+### ⚡ Method 1: Environment Package - Start Using in 1 Minute
 
 #### Choose Your Platform
 
-[![Windows CUDA Download](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
-![Windows CPU Download](https://img.shields.io/badge/Windows%20CPU-Coming%20Soon-blue?style=for-the-badge&logo=windows&logoColor=white)
-![macOS Download](https://img.shields.io/badge/macOS-Coming%20Soon-black?style=for-the-badge&logo=apple&logoColor=white)
+[![Windows CUDA Download](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1i2tCK6BOYSmDTzqpkAMd1FZfaW6OqKmk/view?usp=sharing)
+[![Windows CPU Download](https://img.shields.io/badge/Windows%20CPU-Download-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
+[![macOS Download](https://img.shields.io/badge/macOS-Download-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
 
-#### Download → Run → Speak, it's that simple
+#### Download Instructions
 
-> Windows: Double-click `Start_Windows.bat`
+**Preparation:**
+1. Download the project code
+2. Download the environment package for your platform
 
-> macOS users need to run `chmod +x Start_MacOS.command` in terminal for first-time permission, then double-click to run
+**Windows Users:**
+1. Extract the downloaded zip file
+2. Place the extracted `python_env` folder in the project root directory
+3. Double-click `Start_Windows.bat`
 
-> First-time environment loading will be slow, please wait patiently for about a minute; the package includes the `whisper-large-v3-turbo` model. To use other models, modify `config.yaml` and restart the application - it will auto-download during startup.
+**macOS Users:**
+1. Place the downloaded *.tar.gz environment package in the project root directory
+2. For first-time use, grant execution permissions:
+   - Open Terminal and `cd` to the hey-aura directory
+   - Run `chmod +x Start_MacOS.command`
+3. Double-click `Start_MacOS.command` to run
+   - If double-clicking doesn't work, run `./Start_MacOS.command` in Terminal
+
+> First-time environment loading will be slow, please wait patiently for about a minute; ASR models will auto-download during startup.
 
 ### Method 2: Source Code Installation
 

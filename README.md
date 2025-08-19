@@ -83,25 +83,34 @@
 
 </details>
 
-### ⚡ 方式一：一键整合包 1 分钟开始使用
+### ⚡ 方式一：环境包 1 分钟开始使用
 
 #### 选择你的平台
 
-[![Windows CUDA下载](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
-![Windows CPU下载](https://img.shields.io/badge/Windows%20CPU-稍后推出-blue?style=for-the-badge&logo=windows&logoColor=white)
-![macOS下载](https://img.shields.io/badge/macOS-稍后推出-black?style=for-the-badge&logo=apple&logoColor=white)
+[![Windows CUDA下载](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1i2tCK6BOYSmDTzqpkAMd1FZfaW6OqKmk/view?usp=sharing)
+[![Windows CPU下载](https://img.shields.io/badge/Windows%20CPU-下载-blue?style=for-the-badge&logo=windows&logoColor=white)](https://drive.google.com/file/d/14MKmDtPMVtF5ChhwZeoU4WR7y-PAYBOq/view?usp=sharing)
+[![macOS下载](https://img.shields.io/badge/macOS-下载-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1mGDtMkWfbJA6VWJaJpg-TwP4FvaPFBds/view?usp=sharing)
 
-#### 下载 → 运行 → 说话，就这么简单
+#### 下载使用方法
 
-> Windows 双击运行 `Start_Windows.bat`
+**准备工作：**
+1. 下载本项目代码
+2. 下载对应平台的环境包
 
-> macOS 用户首次运行需要先赋予执行权限：
-> 1. 打开终端，使用 `cd` 命令进入 hey-aura 目录
-> 2. 执行 `chmod +x Start_MacOS.command` 赋予权限
-> 3. 双击 `Start_MacOS.command` 文件运行
-> 4. 如果双击无法执行，可在终端中运行 `./Start_MacOS.command`
+**Windows 用户：**
+1. 解压下载的 zip 文件
+2. 将解压得到的 `python_env` 文件夹放在项目根目录下
+3. 双击运行 `Start_Windows.bat`
 
-> 首次运行环境加载会较慢，请耐心等待一分钟；整合包打包了 `whisper-large-v3-turbo` 模型，如需使用其他模型请修改 `config.yaml` 并重新启动应用，会在启动时自动下载。
+**macOS 用户：**
+1. 将下载的环境包 *.tar.gz 直接放在项目根目录下
+2. 首次运行需要先赋予执行权限：
+   - 打开终端，使用 `cd` 命令进入 hey-aura 目录
+   - 执行 `chmod +x Start_MacOS.command` 赋予权限
+3. 双击 `Start_MacOS.command` 文件运行
+   - 如果双击无法执行，可在终端中运行 `./Start_MacOS.command`
+
+> 首次运行环境加载会较慢，请耐心等待一分钟；ASR 模型会在启动时自动下载。
 
 ### 方式二：源码安装
 
