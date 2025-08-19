@@ -5,9 +5,9 @@ llm:
 
 asr:
   model: whisper-large-v3-turbo
-  language: zh
+  language: auto # Options: auto en zh ja yue...
 
-ui_language: auto # Options: auto en zh
+ui_language: auto # Options: auto en zh ja
 
 web_llm: pplx  # Options: chatgpt, claude, kimi, deepseek, pplx
 
