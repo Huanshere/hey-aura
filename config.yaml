@@ -5,7 +5,7 @@ llm:
 
 asr:
   model: whisper-large-v3-turbo
-  language: auto # Options: auto en zh ja yue...
+  language: auto # Options: auto en zh ja yue... # auto mode will be slower
 
 ui_language: auto # Options: auto en zh ja
 
