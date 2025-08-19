@@ -30,6 +30,7 @@ class SystemAudioRecorder:
         self.original_device = None
         self.stream = None
         self.sas_bin = shutil.which("SwitchAudioSource") or "/opt/homebrew/bin/SwitchAudioSource"
+        self.skip_system_recording = False  # Flag to skip system audio recording
 
     def _get_current_output_device(self):
         """Get current output device name"""
@@ -40,6 +41,30 @@ class SystemAudioRecorder:
         """Switch output device by name"""
         subprocess.run([self.sas_bin, "-t", "output", "-s", name], check=True)
         subprocess.run([self.sas_bin, "-t", "system", "-s", name], check=True)
+    
+    def _is_builtin_speaker(self, device_name):
+        """Check if device is built-in speaker"""
+        device_lower = device_name.lower()
+        
+        # Exclude headphones/earphones first
+        headphone_keywords = ['headphone', 'airpod', '耳机', 'earphone', 'headset']
+        if any(keyword in device_lower for keyword in headphone_keywords):
+            return False
+        
+        # Exclude external/bluetooth devices
+        external_keywords = ['external', 'bluetooth', 'usb', 'wireless', 'immersed', 'virtual', 'hey-aura']
+        if any(keyword in device_lower for keyword in external_keywords):
+            return False
+            
+        # Check for built-in speaker indicators
+        builtin_keywords = ['macbook', '扬声器', 'built-in', '内置']
+        is_builtin = any(keyword in device_lower for keyword in builtin_keywords)
+        
+        # Special case: generic "speaker" is only builtin if it contains macbook/built-in context
+        if 'speaker' in device_lower and not any(k in device_lower for k in ['macbook', 'built-in']):
+            return False
+            
+        return is_builtin
 
     def start(self):
         """Start system audio recording"""
@@ -49,6 +74,15 @@ class SystemAudioRecorder:
         self.original_device = self._get_current_output_device()
         print(_("→ Original audio device: {}").format(self.original_device))
 
+        # Check if current device is built-in speaker
+        if self._is_builtin_speaker(self.original_device):
+            print(_("→ Built-in speaker detected, skipping system audio recording"))
+            print(_("→ Microphone will capture speaker audio naturally"))
+            self.skip_system_recording = True
+            self.is_recording = True  # Mark as recording but skip actual recording
+            return True  # Return True to indicate "successful" start
+
+        # For headphones/external devices, proceed with BlackHole recording
         out = subprocess.check_output([self.sas_bin, "-a"], encoding="utf-8")
         devices = [line.strip() for line in out.splitlines() if line.strip()]
         hey_aura = next((d for d in devices if "hey-aura" in d.lower()), None)
@@ -76,6 +110,7 @@ class SystemAudioRecorder:
 
         self.is_recording = True
         self.is_stopping = False
+        self.skip_system_recording = False
         self.audio_buffer = []
         self.segment_counter = 0
 
@@ -180,6 +215,12 @@ class SystemAudioRecorder:
         self.is_stopping = True
         self.is_recording = False
 
+        # If we skipped system recording, just return
+        if self.skip_system_recording:
+            print(_("→ System audio was not recorded (built-in speaker mode)"))
+            self.skip_system_recording = False
+            return None
+
         if self.recording_thread and self.recording_thread.is_alive():
             self.recording_thread.join(timeout=2)
 
@@ -200,6 +241,10 @@ class SystemAudioRecorder:
 
     def get_speech_segments(self):
         """Get speech segments from queue"""
+        # If we skipped system recording, return empty
+        if self.skip_system_recording:
+            return []
+        
         segments = []
         while not self.audio_queue.empty():
             try:
