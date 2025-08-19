@@ -88,7 +88,7 @@
 
 [![Windows CUDA ダウンロード](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
 ![Windows CPU ダウンロード](https://img.shields.io/badge/Windows%20CPU-近日公開-blue?style=for-the-badge&logo=windows&logoColor=white)
-[![macOS ダウンロード](https://img.shields.io/badge/macOS-Mシリーズチップ-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1I4lVpWf0Gsb6XL7AHaDYZZA9CEvIPHrd/view?usp=sharing)
+![macOS ダウンロード](https://img.shields.io/badge/macOS-近日公開-black?style=for-the-badge&logo=apple&logoColor=white)
 
 #### ダウンロード → 実行 → 話す、これだけです
 

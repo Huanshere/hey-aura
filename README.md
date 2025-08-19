@@ -89,7 +89,7 @@
 
 [![Windows CUDA下载](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
 ![Windows CPU下载](https://img.shields.io/badge/Windows%20CPU-稍后推出-blue?style=for-the-badge&logo=windows&logoColor=white)
-[![macOS下载](https://img.shields.io/badge/macOS-M系列芯片-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1I4lVpWf0Gsb6XL7AHaDYZZA9CEvIPHrd/view?usp=sharing)
+![macOS下载](https://img.shields.io/badge/macOS-稍后推出-black?style=for-the-badge&logo=apple&logoColor=white)
 
 #### 下载 → 运行 → 说话，就这么简单
 

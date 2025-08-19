@@ -88,7 +88,7 @@
 
 [![Windows CUDA Download](https://img.shields.io/badge/Windows%20GPU-CUDA-green?style=for-the-badge&logo=nvidia&logoColor=white)](https://drive.google.com/file/d/1JKaHEOGVLa5XuCQD_jzg-hOCPDrLvvkB/view?usp=sharing)
 ![Windows CPU Download](https://img.shields.io/badge/Windows%20CPU-Coming%20Soon-blue?style=for-the-badge&logo=windows&logoColor=white)
-[![macOS Download](https://img.shields.io/badge/macOS-M%20Series%20Chips-black?style=for-the-badge&logo=apple&logoColor=white)](https://drive.google.com/file/d/1I4lVpWf0Gsb6XL7AHaDYZZA9CEvIPHrd/view?usp=sharing)
+![macOS Download](https://img.shields.io/badge/macOS-Coming%20Soon-black?style=for-the-badge&logo=apple&logoColor=white)
 
 #### Download → Run → Speak, it's that simple
 
