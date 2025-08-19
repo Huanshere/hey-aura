@@ -67,6 +67,10 @@ class WhisperTranscriber(TranscriptionModel):
         # Support both 'language' and 'lang' parameter names for compatibility
         lang = language or kw.get('lang')
         
+        # Convert 'auto' to None for automatic language detection
+        if lang == 'auto':
+            lang = None
+        
         if self.sys == "Windows":
             seg, _ = self.model.transcribe(path, beam_size=kw.get('beam_size', 5), language=lang)
             text = "".join(s.text for s in seg)
