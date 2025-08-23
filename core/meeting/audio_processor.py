@@ -69,6 +69,7 @@ class MeetingAudioProcessor:
         if SystemAudioRecorder:
             try:
                 self.system_recorder = SystemAudioRecorder(sample_rate=self.transcriber_ref.sr)
+                
                 if self.system_recorder.start():
                     print(_("→ 💡 System audio recording started"))
 
@@ -228,7 +229,7 @@ class MeetingAudioProcessor:
                 try:
                     stream.stop()
                     stream.close()
-                except:
+                except Exception:
                     pass
             self.stream = None
             # Force cleanup on macOS to prevent segfault
@@ -414,12 +415,18 @@ class MeetingAudioProcessor:
             pass
 
         # Clear system audio data
-        with self.system_audio_buffer_lock:
-            self.system_audio_buffer = []
+        try:
+            with self.system_audio_buffer_lock:
+                self.system_audio_buffer = []
+        except Exception:
+            pass
             
         # Clear meeting audio data
-        with self.meeting_audio_buffer_lock:
-            self.meeting_audio_buffer = []
+        try:
+            with self.meeting_audio_buffer_lock:
+                self.meeting_audio_buffer = []
+        except Exception:
+            pass
             
         # Force garbage collection on macOS
         import gc

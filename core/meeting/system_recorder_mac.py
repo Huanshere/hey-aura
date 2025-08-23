@@ -26,6 +26,7 @@ class SystemAudioRecorder:
         self.audio_queue = queue.Queue(maxsize=100)
         self.audio_buffer = []
         self.buffer_lock = threading.RLock()
+        self.stream_lock = threading.RLock()  # Lock to protect stream cleanup
         self.segment_counter = 0
         self.original_device = None
         self.stream = None
@@ -148,9 +149,18 @@ class SystemAudioRecorder:
             CHUNK_SIZE = 512
 
             while self.is_recording and not self.is_stopping:
-                audio_chunk, overflowed = self.stream.read(CHUNK_SIZE)
-                if overflowed:
-                    print(_("→ [System] Audio input overflowed"))
+                try:
+                    if hasattr(self.stream, 'read') and self.stream is not None:
+                        audio_chunk, overflowed = self.stream.read(CHUNK_SIZE)
+                    else:
+                        break
+                        
+                    if overflowed:
+                        print(_("→ [System] Audio input overflowed"))
+                except Exception as read_error:
+                    if self.is_stopping:
+                        break
+                    continue
 
                 if audio_chunk is None or len(audio_chunk) == 0:
                     continue
@@ -189,17 +199,21 @@ class SystemAudioRecorder:
                                 speech_active = False
                                 silence_duration = 0.0
                         else:
+                            # Trim buffer to save memory
                             max_buffer_chunks = int(1.0 * self.sr / CHUNK_SIZE)
                             if len(speech_segment_buffer) > max_buffer_chunks:
                                 speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
 
-            if self.stream:
-                try:
-                    self.stream.stop()
-                    self.stream.close()
-                    self.stream = None
-                except Exception:
-                    pass
+            with self.stream_lock:  # Protect stream cleanup
+                if self.stream:
+                    try:
+                        # Only stop if not already stopped by main thread
+                        if hasattr(self.stream, '_stream') and self.stream._stream is not None:
+                            self.stream.stop()
+                        self.stream.close()
+                        self.stream = None  # This tells main thread we handled cleanup
+                    except Exception:
+                        self.stream = None
 
         except Exception as e:
             print(_("→ [System] Recording failed: {}").format(e))
@@ -211,7 +225,7 @@ class SystemAudioRecorder:
                     self.stream.close()
                     self.stream = None
                 except Exception:
-                    pass
+                    self.stream = None
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to audio array"""
@@ -225,29 +239,59 @@ class SystemAudioRecorder:
             return None
 
         print(_("→ Stopping system audio recording..."))
-        self.is_stopping = True
-        self.is_recording = False
-
+        
         # If we skipped system recording, just return
         if self.skip_system_recording:
             print(_("→ System audio was not recorded (built-in speaker mode)"))
             self.skip_system_recording = False
             return None
 
-        # Force stop stream first to avoid C library issues
-        if self.stream:
-            try:
-                self.stream.stop()
-                self.stream.close()
-                self.stream = None
-            except Exception as e:
-                print(_("→ Warning: Error closing stream: {}").format(e))
-
+        # Set stopping flags
+        self.is_stopping = True
+        
+        # Force stop stream FIRST to interrupt any blocking read operations
+        with self.stream_lock:  # Protect stream operations
+            if self.stream:
+                try:
+                    self.stream.stop()
+                    # DO NOT close here - let the recording thread handle closing
+                    # to avoid double-free issues
+                except Exception as e:
+                    print(_("→ Warning: Error stopping stream: {}").format(e))
+                    # If stop fails, force set stream to None to prevent double cleanup
+                    self.stream = None
+        
+        # NOW set is_recording = False after stream is stopped
+        self.is_recording = False
+        
         # Wait for thread with better cleanup
         if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=3)
+            self.recording_thread.join(timeout=5)  # Increased timeout
             if self.recording_thread.is_alive():
                 print(_("→ Warning: Recording thread still alive, forcing cleanup"))
+                # If thread didn't exit, we need to force cleanup stream
+                with self.stream_lock:
+                    if self.stream:
+                        try:
+                            self.stream.close()
+                            self.stream = None
+                        except Exception:
+                            self.stream = None
+            else:
+                # Thread exited normally, it should have cleaned up the stream
+                # But let's make sure stream is None
+                with self.stream_lock:
+                    if self.stream:
+                        self.stream = None
+        else:
+            # No thread to clean up, we need to close stream ourselves
+            with self.stream_lock:
+                if self.stream:
+                    try:
+                        self.stream.close()
+                        self.stream = None
+                    except Exception:
+                        self.stream = None
 
         # Clear VAD resources explicitly on macOS
         if self.vad:
