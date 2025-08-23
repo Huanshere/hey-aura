@@ -26,7 +26,7 @@ from core import transcription_queue
 from core.audio_utils import AudioEnhancer, SileroVAD, AudioDeviceSelector
 from core.command_mode import command_mode
 from core.i18n import _, set_language
-from core.llm_rewriter import get_rewriter
+from core.llm_rewriter import rewrite_text
 from core.meeting_utils import MeetingRecorder
 
 # Audio configuration constants
@@ -97,7 +97,6 @@ class VoiceTranscriber:
         self.fn_listener = None  # Will be initialized for macOS
         self.tray=TrayAnimator()
         self.audio_enhancer=AudioEnhancer(sample_rate=self.sr)
-        self.rewriter=get_rewriter()
         self.json_lock = threading.Lock()
         
         # Initialize transcription queue
@@ -335,11 +334,10 @@ class VoiceTranscriber:
     def process_dictation(self,text):
         print(_("📝 Dictation output: {}").format(text))
         # Apply LLM rewriting if enabled (only for dictation mode)
-        if self.rewriter.enabled:
-            rewritten_text = self.rewriter.rewrite(text, 'dictation')
-            if rewritten_text != text:
-                print(_("✨ Rewritten: {}").format(rewritten_text))
-            self.text_injector.type(rewritten_text)
+        rewritten_text = rewrite_text(text, 'dictation')
+        if rewritten_text != text:
+            print(_("✨ Rewritten: {}").format(rewritten_text))
+        self.text_injector.type(rewritten_text)
         else:
             self.text_injector.type(text)
 
