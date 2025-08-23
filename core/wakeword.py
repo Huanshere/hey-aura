@@ -1,9 +1,11 @@
+import os
 import gc
-import numpy as np
+import numpy as  np
 import warnings
-import logging
+import openwakeword
 warnings.filterwarnings("ignore")
-logging.getLogger().setLevel(logging.ERROR)
+os.environ["HF_HUB_CACHE"] = os.path.join(os.getcwd(), "models")
+openwakeword.utils.download_models()
 
 from openwakeword.model import Model
 # threshold can be low to get more false positives
