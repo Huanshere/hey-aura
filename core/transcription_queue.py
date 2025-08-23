@@ -78,7 +78,3 @@ def _process_queue():
             print(_("❌ Worker thread error: {}").format(e))
     
     print(_("→ Transcription worker stopped: {}").format(threading.current_thread().name))
-
-
-def get_queue_size() -> int:
-    return _task_queue.qsize() if _task_queue else 0
