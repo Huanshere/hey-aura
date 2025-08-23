@@ -4,6 +4,7 @@ from core.i18n import _
 from core.meeting.audio_processor import MeetingAudioProcessor
 from core.meeting.transcription_processor import MeetingTranscriptionProcessor
 from core.meeting.meeting_exporter import save_meeting_results
+from core import transcription_queue
 
 
 class MeetingRecorder:
@@ -57,9 +58,12 @@ class MeetingRecorder:
         self.meeting_mode = False
         if self.meeting_thread and self.meeting_thread.is_alive():
             print(_("→ Waiting for microphone recording thread..."))
-            self.meeting_thread.join(timeout=5)
+            self.meeting_thread.join(timeout=8)  # Increased timeout for safer cleanup
             if self.meeting_thread.is_alive():
                 print(_("→ Warning: Recording thread did not terminate cleanly"))
+                # Force cleanup to prevent resource leaks
+                import gc
+                gc.collect()
         self.transcription_processor.wait_for_transcription_completion()
         try:
             transcripts = self.transcription_processor.get_transcripts()
@@ -84,4 +88,20 @@ class MeetingRecorder:
     
     def cleanup_resources(self):
         """Cleanup all resources."""
+        # Ensure we're not in recording mode
+        if self.meeting_mode:
+            self.stop_meeting_recording()
+        
+        # Clean up audio processor
         self.audio_processor.cleanup_resources()
+        
+        # Clean up transcription processor
+        if hasattr(self, 'transcription_processor'):
+            self.transcription_processor.cleanup_resources()
+        
+        # Shutdown transcription queue to prevent resource leaks
+        transcription_queue.shutdown()
+        
+        # Force cleanup
+        import gc
+        gc.collect()

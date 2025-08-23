@@ -297,3 +297,19 @@ class MeetingTranscriptionProcessor:
     def clear_transcripts(self):
         """Clear all transcription results."""
         self.meeting_transcripts = []
+
+    def cleanup_resources(self):
+        """Cleanup transcription processor resources."""
+        # Stop all transcription processing
+        if self.meeting_transcription_thread and self.meeting_transcription_thread.is_alive():
+            self.meeting_transcription_thread.join(timeout=3)
+        
+        if self.system_transcription_thread and self.system_transcription_thread.is_alive():
+            self.system_transcription_thread.join(timeout=3)
+        
+        # Clear transcripts
+        self.meeting_transcripts = []
+        
+        # Reset active flags
+        self.meeting_transcription_active = False
+        self.system_transcription_active = False

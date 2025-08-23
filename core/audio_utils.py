@@ -75,10 +75,6 @@ class SileroVAD:
         self.model = None
         self.sample_rate = 16000
         
-    def initialize(self):
-        if self.model: 
-            return
-            
         try:
             onnx_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'silero_vad.onnx')
             # Create ONNX inference session with optimized settings

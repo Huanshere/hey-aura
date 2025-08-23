@@ -6,7 +6,7 @@ import queue
 import platform
 import warnings
 
-from core.audio_utils import AudioDeviceSelector, SileroVAD
+from core.audio_utils import AudioDeviceSelector
 from core.i18n import _
 
 if platform.system() == 'Windows':
@@ -23,13 +23,9 @@ class MeetingAudioProcessor:
         """Initialize the audio processor."""
         self.transcriber_ref = transcriber_ref
 
-        # Microphone VAD initialized
-        self.microphone_vad = SileroVAD()
-        self.microphone_vad.initialize()
-
-        # System audio VAD initialized
-        self.system_vad = SileroVAD()
-        self.system_vad.initialize()
+        # Use pre-initialized VAD instances from main app
+        self.microphone_vad = transcriber_ref.meeting_microphone_vad
+        self.system_vad = transcriber_ref.meeting_system_vad
 
         self.stream = None
         self.meeting_audio_buffer = []
@@ -68,7 +64,9 @@ class MeetingAudioProcessor:
         # Start system audio recording
         if SystemAudioRecorder:
             try:
-                self.system_recorder = SystemAudioRecorder(sample_rate=self.transcriber_ref.sr)
+                # Pass the system VAD instance to reuse it
+                self.system_recorder = SystemAudioRecorder(sample_rate=self.transcriber_ref.sr, vad_instance=self.system_vad)
+                
                 if self.system_recorder.start():
                     print(_("→ 💡 System audio recording started"))
 
@@ -146,7 +144,7 @@ class MeetingAudioProcessor:
                         chunk_energy = np.mean(np.abs(audio_chunk))
 
                         # Pre-filter, only run VAD on audio with enough energy
-                        if chunk_energy > 0.04 and self.microphone_vad is not None:
+                        if chunk_energy > 0.01 and self.microphone_vad is not None:
                             try:
                                 chunk_has_speech = self.microphone_vad.is_speech_realtime(audio_chunk, self.transcriber_ref.sr)
                             except Exception as e:
@@ -223,13 +221,17 @@ class MeetingAudioProcessor:
             if hasattr(self.transcriber_ref, 'meeting_recorder'):
                 self.transcriber_ref.meeting_recorder.meeting_mode = False
         finally:
+            # Ensure proper cleanup with forced garbage collection
             if stream:
                 try:
                     stream.stop()
                     stream.close()
-                except:
+                except Exception:
                     pass
             self.stream = None
+            # Force cleanup on macOS to prevent segfault
+            import gc
+            gc.collect()
 
     def _process_system_audio(self):
         """System audio processing and buffer storage."""
@@ -372,18 +374,17 @@ class MeetingAudioProcessor:
 
     def cleanup_resources(self):
         """Cleanup resources."""
-        # Cleanup VAD instances
-        try:
-            if hasattr(self, 'microphone_vad') and self.microphone_vad:
-                self.microphone_vad = None
-        except Exception:
-            pass
-
-        try:
-            if hasattr(self, 'system_vad') and self.system_vad:
-                self.system_vad = None
-        except Exception:
-            pass
+        # Force stop any remaining streams first
+        if hasattr(self, 'stream') and self.stream:
+            try:
+                self.stream.stop()
+                self.stream.close()
+                self.stream = None
+            except Exception:
+                pass
+        
+        # Don't cleanup VAD instances - they are managed at app level
+        # VAD instances remain initialized throughout the application lifecycle
 
         # Clear queues
         try:
@@ -399,5 +400,19 @@ class MeetingAudioProcessor:
             pass
 
         # Clear system audio data
-        with self.system_audio_buffer_lock:
-            self.system_audio_buffer = []
+        try:
+            with self.system_audio_buffer_lock:
+                self.system_audio_buffer = []
+        except Exception:
+            pass
+            
+        # Clear meeting audio data
+        try:
+            with self.meeting_audio_buffer_lock:
+                self.meeting_audio_buffer = []
+        except Exception:
+            pass
+            
+        # Force garbage collection on macOS
+        import gc
+        gc.collect()

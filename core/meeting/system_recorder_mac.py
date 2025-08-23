@@ -7,6 +7,7 @@ import subprocess
 import shutil
 from datetime import datetime
 import scipy.io.wavfile as wav
+from scipy import signal
 from pydub import AudioSegment
 import os
 from core.audio_utils import SileroVAD
@@ -16,12 +17,10 @@ from core.i18n import _
 class SystemAudioRecorder:
     """System audio recorder for macOS using BlackHole/hey-aura"""
 
-    def __init__(self, sample_rate=16000):
+    def __init__(self, sample_rate=16000, vad_instance=None):
         self.sr = sample_rate
-        self.vad = SileroVAD(threshold=0.6)
-        self.vad.initialize()
+        self.vad = vad_instance if vad_instance else SileroVAD(threshold=0.6)
         self.is_recording = False
-        self.is_stopping = False
         self.recording_thread = None
         self.audio_queue = queue.Queue(maxsize=100)
         self.audio_buffer = []
@@ -30,7 +29,10 @@ class SystemAudioRecorder:
         self.original_device = None
         self.stream = None
         self.sas_bin = shutil.which("SwitchAudioSource") or "/opt/homebrew/bin/SwitchAudioSource"
-        self.skip_system_recording = False  # Flag to skip system audio recording
+        self.skip_system_recording = False
+        # Use Event for clean thread communication
+        self._stop_event = threading.Event()
+        self._device_sample_rate = None  # Store device's native sample rate
 
     def _get_current_output_device(self):
         """Get current output device name"""
@@ -93,8 +95,17 @@ class SystemAudioRecorder:
 
         self._set_output_device(hey_aura)
         print(_("→ System output switched to: {}").format(hey_aura))
+        # Wait for device switching to stabilize
+        time.sleep(1.0)  # Increased wait time
 
-        input_devices = sd.query_devices()
+        print(_("→ Querying input devices..."))
+        try:
+            input_devices = sd.query_devices()
+            print(_("→ Found {} devices").format(len(input_devices) if input_devices else 0))
+        except Exception as e:
+            print(_("→ Error querying devices: {}").format(e))
+            self._set_output_device(self.original_device)
+            return False
         blackhole_input = None
         for idx, device in enumerate(input_devices):
             if device['max_input_channels'] > 0 and 'blackhole' in device['name'].lower():
@@ -107,12 +118,18 @@ class SystemAudioRecorder:
             return False
 
         print(_("→ Using recording device: {} (index: {})").format(input_devices[blackhole_input]['name'], blackhole_input))
+        
+        # Get device's native sample rate
+        device_info = sd.query_devices(blackhole_input)
+        self._device_sample_rate = int(device_info.get('default_samplerate', 48000))
+        if self._device_sample_rate != self.sr:
+            print(_("→ Device sample rate: {}Hz, will resample to {}Hz").format(self._device_sample_rate, self.sr))
 
         self.is_recording = True
-        self.is_stopping = False
         self.skip_system_recording = False
         self.audio_buffer = []
         self.segment_counter = 0
+        self._stop_event.clear()
 
         self.recording_thread = threading.Thread(
             target=self._recording_loop,
@@ -124,81 +141,128 @@ class SystemAudioRecorder:
         return True
 
     def _recording_loop(self, device_index):
-        """System audio recording loop"""
+        """System audio recording loop using callback"""
         try:
             device_info = sd.query_devices(device_index)
             channels = min(2, device_info['max_input_channels'])
+            # Use device's native sample rate to avoid resampling issues
+            actual_sr = self._device_sample_rate or self.sr
+            need_resample = actual_sr != self.sr
 
-            self.stream = sd.InputStream(
-                samplerate=self.sr,
-                channels=channels,
-                dtype=np.float32,
-                blocksize=512,
-                latency='low',
-                device=device_index
-            )
-            self.stream.start()
-
-            print(_("→ Recording started, channels: {}").format(channels))
-
+            # VAD processing state - thread local
             silence_duration = 0.0
             speech_segment_buffer = []
             speech_active = False
             SILENCE_THRESHOLD = 1.5
-            CHUNK_SIZE = 512
 
-            while self.is_recording and not self.is_stopping:
-                audio_chunk, overflowed = self.stream.read(CHUNK_SIZE)
-                if overflowed:
-                    print(_("→ [System] Audio input overflowed"))
+            def audio_callback(indata, frames, time_info, status):
+                """Audio callback - must be lightweight and fast"""
+                # Suppress unused parameter warnings
+                _ = frames, time_info
+                
+                if self._stop_event.is_set():
+                    raise sd.CallbackStop
+                
+                if status:
+                    print(_("→ [System] Audio callback status: {}").format(status))
 
-                if audio_chunk is None or len(audio_chunk) == 0:
-                    continue
-
-                if audio_chunk.ndim == 2:
-                    audio_chunk = audio_chunk.mean(axis=1)
-                audio_chunk = audio_chunk.astype(np.float32).flatten()
+                # Convert to mono float32
+                if indata.ndim == 2:
+                    audio_chunk = indata.mean(axis=1)
+                else:
+                    audio_chunk = indata.copy()
+                audio_chunk = audio_chunk.astype(np.float32, copy=False).flatten()
+                
+                # Resample if needed (keep lightweight)
+                if need_resample and len(audio_chunk) > 0:
+                    audio_chunk = signal.resample_poly(audio_chunk, self.sr, actual_sr)
+                    audio_chunk = audio_chunk.astype(np.float32, copy=False)
 
                 chunk_bytes = audio_chunk.tobytes()
+                
+                # Store in buffer
                 with self.buffer_lock:
                     self.audio_buffer.append(chunk_bytes)
 
-                if self.vad:
-                    chunk_has_speech = self.vad.is_speech_realtime(audio_chunk, self.sr)
-                    chunk_duration = len(audio_chunk) / self.sr
+            # Create callback-based stream
+            self.stream = sd.InputStream(
+                samplerate=actual_sr,
+                channels=channels,
+                dtype='float32',
+                blocksize=512,
+                latency='low',
+                device=device_index,
+                callback=audio_callback
+            )
+            
+            self.stream.start()
+            print(_("→ Recording started (callback mode), channels: {}, sample_rate: {}Hz").format(channels, actual_sr))
 
-                    speech_segment_buffer.append(chunk_bytes)
+            # Main processing loop - runs in separate thread, processes buffered audio for VAD
+            CHUNK_SIZE = 512
+            while not self._stop_event.is_set():
+                time.sleep(0.05)  # Small sleep to avoid busy waiting
+                
+                # Process buffered audio chunks for VAD (if any)
+                chunks_to_process = []
+                with self.buffer_lock:
+                    if len(self.audio_buffer) > 0:
+                        # Take recent chunks for VAD processing
+                        recent_chunks = self.audio_buffer[-10:]  # Process last 10 chunks
+                        chunks_to_process = recent_chunks.copy()
 
-                    if chunk_has_speech:
-                        if not speech_active:
-                            speech_active = True
-                            print(_("→ [System] Speech detected"))
-                        silence_duration = 0.0
-                    else:
-                        if speech_active:
-                            silence_duration += chunk_duration
-                            if silence_duration >= SILENCE_THRESHOLD and len(speech_segment_buffer) > 0:
-                                segment_audio = self._bytes_to_audio(speech_segment_buffer)
-                                try:
-                                    self.audio_queue.put(segment_audio.tobytes(), block=False)
-                                    self.segment_counter += 1
-                                    print(_("→ [System] Speech segment {}: {:.1f}s").format(self.segment_counter, len(segment_audio)/self.sr))
-                                except queue.Full:
-                                    print(_("→ [System] Queue full"))
-                                speech_segment_buffer = []
-                                speech_active = False
-                                silence_duration = 0.0
+                if self.vad and chunks_to_process:
+                    for chunk_bytes in chunks_to_process:
+                        audio_chunk = np.frombuffer(chunk_bytes, dtype=np.float32)
+                        if len(audio_chunk) == 0:
+                            continue
+                            
+                        chunk_has_speech = self.vad.is_speech_realtime(audio_chunk, self.sr)
+                        chunk_duration = len(audio_chunk) / self.sr
+
+                        speech_segment_buffer.append(chunk_bytes)
+
+                        if chunk_has_speech:
+                            if not speech_active:
+                                speech_active = True
+                                print(_("→ [System] Speech detected"))
+                            silence_duration = 0.0
                         else:
-                            max_buffer_chunks = int(1.0 * self.sr / CHUNK_SIZE)
-                            if len(speech_segment_buffer) > max_buffer_chunks:
-                                speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
-
-            self.stream.stop()
-            self.stream.close()
+                            if speech_active:
+                                silence_duration += chunk_duration
+                                if silence_duration >= SILENCE_THRESHOLD and len(speech_segment_buffer) > 0:
+                                    segment_audio = self._bytes_to_audio(speech_segment_buffer)
+                                    try:
+                                        self.audio_queue.put(segment_audio.tobytes(), block=False)
+                                        self.segment_counter += 1
+                                        print(_("→ [System] Speech segment {}: {:.1f}s").format(self.segment_counter, len(segment_audio)/self.sr))
+                                    except queue.Full:
+                                        print(_("→ [System] Queue full"))
+                                    speech_segment_buffer = []
+                                    speech_active = False
+                                    silence_duration = 0.0
+                            else:
+                                # Trim buffer to save memory
+                                max_buffer_chunks = int(1.0 * self.sr / CHUNK_SIZE)
+                                if len(speech_segment_buffer) > max_buffer_chunks:
+                                    speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
 
         except Exception as e:
             print(_("→ [System] Recording failed: {}").format(e))
+        finally:
+            # Clean up stream only in this thread - but avoid double-close
+            stream_to_close = self.stream
+            if stream_to_close and hasattr(stream_to_close, 'close'):
+                try:
+                    if hasattr(stream_to_close, 'stop'):
+                        stream_to_close.stop()
+                    stream_to_close.close()
+                except Exception as e:
+                    print(_("→ [System] Stream cleanup error: {}").format(e))
+            # Clear the reference
+            self.stream = None
             self.is_recording = False
+            print(_("→ [System] Recording loop ended"))
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to audio array"""
@@ -212,25 +276,45 @@ class SystemAudioRecorder:
             return None
 
         print(_("→ Stopping system audio recording..."))
-        self.is_stopping = True
-        self.is_recording = False
-
+        
         # If we skipped system recording, just return
         if self.skip_system_recording:
             print(_("→ System audio was not recorded (built-in speaker mode)"))
             self.skip_system_recording = False
+            self.is_recording = False
             return None
 
+        # Signal recording thread to stop - this will trigger CallbackStop in the callback
+        self._stop_event.set()
+        
+        # The callback will handle stopping when it sees _stop_event
+        # We don't need to manually stop/close here since the thread will handle cleanup
+        
+        # Wait for thread to finish - should be much faster now with callback mode
         if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=2)
+            self.recording_thread.join(timeout=3)  # Reduced timeout since callback should exit quickly
+            if self.recording_thread.is_alive():
+                print(_("→ Warning: Recording thread still alive after timeout"))
+        
+        # Clear thread reference to prevent conflicts with subsequent recordings
+        self.recording_thread = None
+        
+        # Reset all flags to clean state
+        self.is_recording = False
+        self._stop_event.clear()
 
-        if self.stream:
-            self.stream.stop()
-            self.stream.close()
-
+        # Wait for stabilization before switching back
+        time.sleep(0.2)
+        
+        # Restore original device after thread has stopped
         if self.original_device:
-            self._set_output_device(self.original_device)
-            print(_("→ Restored to original device: {}").format(self.original_device))
+            try:
+                self._set_output_device(self.original_device)
+                print(_("→ Restored to original device: {}").format(self.original_device))
+                # Wait for device switching to stabilize
+                time.sleep(0.3)
+            except Exception as e:
+                print(_("→ Warning: Could not restore audio device: {}").format(e))
 
         with self.buffer_lock:
             if self.audio_buffer:
