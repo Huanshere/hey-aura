@@ -28,6 +28,7 @@ from core.command_mode import command_mode
 from core.i18n import _, set_language
 from core.llm_rewriter import rewrite_text
 from core.meeting_utils import MeetingRecorder
+from core.wakeword import detect_from_audio
 
 # Audio configuration constants
 SAMPLE_RATE,SPEECH_PADDING_MS,VAD_THRESHOLD=16000,300,0.6
@@ -126,6 +127,11 @@ class VoiceTranscriber:
     def quit_app(self):
         print(_("→ Exiting program"))
         self.cleanup_stream()
+        # Cleanup meeting recorder resources
+        if hasattr(self, 'meeting_recorder'):
+            self.meeting_recorder.cleanup_resources()
+        # Shutdown transcription service to prevent resource leaks
+        transcription_queue.shutdown()
         self.tray.stop_animation()
         if platform.system()!="Darwin":
             self.tray.icon and self.tray.icon.stop()
@@ -160,11 +166,10 @@ class VoiceTranscriber:
         def rec():
             stream = None
             try:
-                # Refresh audio devices to get latest defaults
-                sd._terminate()
-                sd._initialize()
+                # Wait a moment after meeting mode to ensure clean state
+                time.sleep(0.1)
                 
-                # Get best input device using smart selector
+                # Get best input device using smart selector (without reinitializing)
                 best_device_id = AudioDeviceSelector.get_best_input_device()
                 
                 if best_device_id is None:
@@ -273,7 +278,6 @@ class VoiceTranscriber:
             
             # Check for wakeword in dictation mode
             if self.mode == 'dictation':
-                from core.wakeword import detect_from_audio
                 kws_start = time.time()
                 detected, confidence = detect_from_audio(aud.copy(), self.sr)
                 kws_time = (time.time() - kws_start) * 1000  # Convert to milliseconds
@@ -289,7 +293,6 @@ class VoiceTranscriber:
             tf=tempfile.NamedTemporaryFile(suffix=".wav",delete=False)
             wav.write(tf.name,self.sr,(np.clip(aud,-1.0,1.0)*32767).astype(np.int16))
             tf.close()
-            t=time.time()
             
             # Use transcription queue
             try:

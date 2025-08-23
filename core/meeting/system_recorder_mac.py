@@ -7,6 +7,7 @@ import subprocess
 import shutil
 from datetime import datetime
 import scipy.io.wavfile as wav
+from scipy import signal
 from pydub import AudioSegment
 import os
 from core.audio_utils import SileroVAD
@@ -20,17 +21,18 @@ class SystemAudioRecorder:
         self.sr = sample_rate
         self.vad = vad_instance if vad_instance else SileroVAD(threshold=0.6)
         self.is_recording = False
-        self.is_stopping = False
         self.recording_thread = None
         self.audio_queue = queue.Queue(maxsize=100)
         self.audio_buffer = []
         self.buffer_lock = threading.RLock()
-        self.stream_lock = threading.RLock()  # Lock to protect stream cleanup
         self.segment_counter = 0
         self.original_device = None
         self.stream = None
         self.sas_bin = shutil.which("SwitchAudioSource") or "/opt/homebrew/bin/SwitchAudioSource"
-        self.skip_system_recording = False  # Flag to skip system audio recording
+        self.skip_system_recording = False
+        # Use Event for clean thread communication
+        self._stop_event = threading.Event()
+        self._device_sample_rate = None  # Store device's native sample rate
 
     def _get_current_output_device(self):
         """Get current output device name"""
@@ -93,6 +95,8 @@ class SystemAudioRecorder:
 
         self._set_output_device(hey_aura)
         print(_("→ System output switched to: {}").format(hey_aura))
+        # Wait for device switching to stabilize
+        time.sleep(0.3)
 
         input_devices = sd.query_devices()
         blackhole_input = None
@@ -107,12 +111,18 @@ class SystemAudioRecorder:
             return False
 
         print(_("→ Using recording device: {} (index: {})").format(input_devices[blackhole_input]['name'], blackhole_input))
+        
+        # Get device's native sample rate
+        device_info = sd.query_devices(blackhole_input)
+        self._device_sample_rate = int(device_info.get('default_samplerate', 48000))
+        if self._device_sample_rate != self.sr:
+            print(_("→ Device sample rate: {}Hz, will resample to {}Hz").format(self._device_sample_rate, self.sr))
 
         self.is_recording = True
-        self.is_stopping = False
         self.skip_system_recording = False
         self.audio_buffer = []
         self.segment_counter = 0
+        self._stop_event.clear()
 
         self.recording_thread = threading.Thread(
             target=self._recording_loop,
@@ -125,39 +135,45 @@ class SystemAudioRecorder:
 
     def _recording_loop(self, device_index):
         """System audio recording loop"""
+        stream = None
         try:
             device_info = sd.query_devices(device_index)
             channels = min(2, device_info['max_input_channels'])
+            # Use device's native sample rate to avoid resampling issues
+            actual_sr = self._device_sample_rate or self.sr
 
-            self.stream = sd.InputStream(
-                samplerate=self.sr,
+            # Create stream with context manager pattern
+            stream = sd.InputStream(
+                samplerate=actual_sr,
                 channels=channels,
                 dtype=np.float32,
                 blocksize=512,
                 latency='low',
                 device=device_index
             )
-            self.stream.start()
+            self.stream = stream  # Store reference for abort() if needed
+            stream.start()
 
-            print(_("→ Recording started, channels: {}").format(channels))
+            print(_("→ Recording started, channels: {}, sample_rate: {}Hz").format(channels, actual_sr))
 
             silence_duration = 0.0
             speech_segment_buffer = []
             speech_active = False
             SILENCE_THRESHOLD = 1.5
             CHUNK_SIZE = 512
+            need_resample = actual_sr != self.sr
 
-            while self.is_recording and not self.is_stopping:
+            while not self._stop_event.is_set():
                 try:
-                    if hasattr(self.stream, 'read') and self.stream is not None:
-                        audio_chunk, overflowed = self.stream.read(CHUNK_SIZE)
+                    if stream and hasattr(stream, 'read'):
+                        audio_chunk, overflowed = stream.read(CHUNK_SIZE)
                     else:
                         break
                         
                     if overflowed:
                         print(_("→ [System] Audio input overflowed"))
-                except Exception as read_error:
-                    if self.is_stopping:
+                except Exception:
+                    if self._stop_event.is_set():
                         break
                     continue
 
@@ -167,6 +183,11 @@ class SystemAudioRecorder:
                 if audio_chunk.ndim == 2:
                     audio_chunk = audio_chunk.mean(axis=1)
                 audio_chunk = audio_chunk.astype(np.float32).flatten()
+                
+                # Resample if needed
+                if need_resample and len(audio_chunk) > 0:
+                    audio_chunk = signal.resample_poly(audio_chunk, self.sr, actual_sr)
+                    audio_chunk = audio_chunk.astype(np.float32)
 
                 chunk_bytes = audio_chunk.tobytes()
                 with self.buffer_lock:
@@ -203,29 +224,20 @@ class SystemAudioRecorder:
                             if len(speech_segment_buffer) > max_buffer_chunks:
                                 speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
 
-            with self.stream_lock:  # Protect stream cleanup
-                if self.stream and not self.is_stopping:
-                    try:
-                        self.stream.stop()
-                        self.stream.close()
-                    except Exception:
-                        pass
-                    finally:
-                        self.stream = None
-
         except Exception as e:
             print(_("→ [System] Recording failed: {}").format(e))
+        finally:
+            # Clean up stream only in this thread
+            if stream:
+                try:
+                    stream.stop()
+                    stream.close()
+                except Exception as e:
+                    print(_("→ [System] Stream cleanup error: {}").format(e))
+            # Clear the reference
+            self.stream = None
             self.is_recording = False
-            # Clean stream on error
-            with self.stream_lock:
-                if self.stream:
-                    try:
-                        self.stream.stop()
-                        self.stream.close()
-                    except Exception:
-                        pass
-                    finally:
-                        self.stream = None
+            print(_("→ [System] Recording loop ended"))
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to audio array"""
@@ -244,50 +256,41 @@ class SystemAudioRecorder:
         if self.skip_system_recording:
             print(_("→ System audio was not recorded (built-in speaker mode)"))
             self.skip_system_recording = False
+            self.is_recording = False
             return None
 
-        # Set stopping flags FIRST before any stream operations
-        self.is_stopping = True
-        self.is_recording = False
+        # Signal recording thread to stop
+        self._stop_event.set()
         
-        # Force stop stream to interrupt any blocking read operations
-        with self.stream_lock:  # Protect stream operations
-            if self.stream:
-                try:
-                    self.stream.stop()
-                    # DO NOT close here - let the recording thread handle closing
-                    # to avoid double-free issues
-                except Exception as e:
-                    print(_("→ Warning: Error stopping stream: {}").format(e))
-                    # If stop fails, we'll handle cleanup below
-                    pass
+        # Use abort() to interrupt blocking read() - safer than stop()
+        if self.stream:
+            try:
+                self.stream.abort()  # Non-blocking, safer than stop()
+            except Exception as e:
+                print(_("→ Warning: Error aborting stream: {}").format(e))
         
-        # Wait for thread with better cleanup
+        # Wait for thread to finish
         if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=5)  # Increased timeout
+            self.recording_thread.join(timeout=8)  # Generous timeout
             if self.recording_thread.is_alive():
-                print(_("→ Warning: Recording thread still alive, forcing cleanup"))
-                # Force cleanup stream if thread didn't exit cleanly
-                with self.stream_lock:
-                    if self.stream:
-                        try:
-                            self.stream.close()
-                        except Exception:
-                            pass
-                        finally:
-                            self.stream = None
+                print(_("→ Warning: Recording thread still alive after timeout"))
         
-        # Ensure stream is None after all cleanup attempts
-        with self.stream_lock:
-            self.stream = None
+        # Clear thread reference to prevent conflicts with subsequent recordings
+        self.recording_thread = None
+        
+        # Reset all flags to clean state
+        self.is_recording = False
+        self._stop_event.clear()
 
-        # Keep VAD instance alive - don't delete it
-        # VAD is managed at application level and reused
-
+        # Wait for device stabilization before switching back
+        time.sleep(0.2)
+        
         if self.original_device:
             try:
                 self._set_output_device(self.original_device)
                 print(_("→ Restored to original device: {}").format(self.original_device))
+                # Wait for device switching to stabilize
+                time.sleep(0.3)
             except Exception as e:
                 print(_("→ Warning: Could not restore audio device: {}").format(e))
 

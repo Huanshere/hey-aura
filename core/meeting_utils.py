@@ -4,6 +4,7 @@ from core.i18n import _
 from core.meeting.audio_processor import MeetingAudioProcessor
 from core.meeting.transcription_processor import MeetingTranscriptionProcessor
 from core.meeting.meeting_exporter import save_meeting_results
+from core import transcription_queue
 
 
 class MeetingRecorder:
@@ -97,6 +98,9 @@ class MeetingRecorder:
         # Clean up transcription processor
         if hasattr(self, 'transcription_processor'):
             self.transcription_processor.cleanup_resources()
+        
+        # Shutdown transcription queue to prevent resource leaks
+        transcription_queue.shutdown()
         
         # Force cleanup
         import gc

@@ -78,3 +78,33 @@ def _process_queue():
             print(_("❌ Worker thread error: {}").format(e))
     
     print(_("→ Transcription worker stopped: {}").format(threading.current_thread().name))
+
+def shutdown():
+    """Shutdown transcription service and clean up resources"""
+    global _running, _workers, _task_queue, _transcriber
+    
+    if not _running:
+        return
+        
+    print(_("→ Shutting down transcription service..."))
+    _running = False
+    
+    # Signal workers to stop by putting None tasks
+    if _task_queue:
+        for _ in _workers:
+            try:
+                _task_queue.put(None, timeout=1)
+            except queue.Full:
+                pass
+    
+    # Wait for workers to finish
+    for worker in _workers:
+        if worker.is_alive():
+            worker.join(timeout=3)
+            if worker.is_alive():
+                print(_("→ Warning: Worker {} did not terminate cleanly").format(worker.name))
+    
+    _workers.clear()
+    _task_queue = None
+    _transcriber = None
+    print(_("✅ Transcription service shutdown complete"))
