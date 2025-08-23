@@ -19,7 +19,6 @@ class SystemAudioRecorder:
     def __init__(self, sample_rate=16000):
         self.sr = sample_rate
         self.vad = SileroVAD(threshold=0.6)
-        self.vad.initialize()
         self.is_recording = False
         self.is_stopping = False
         self.recording_thread = None

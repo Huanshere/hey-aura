@@ -6,7 +6,6 @@ def test_silero_vad():
     print("\n=== Testing Silero VAD ===")
     from core.audio_utils import SileroVAD
     vad = SileroVAD()
-    vad.initialize()
     if not vad.model:
         raise RuntimeError("VAD model failed to load")
     ts = vad.get_speech_timestamps(np.random.randn(16000).astype(np.float32))

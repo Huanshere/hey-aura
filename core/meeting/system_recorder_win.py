@@ -21,7 +21,6 @@ class SystemAudioRecorder:
         """Initialize the system audio recorder"""
         self.sr = sample_rate
         self.vad = SileroVAD()
-        self.vad.initialize()
         self.is_recording = False
         self.is_stopping = False
         self.recording_thread = None

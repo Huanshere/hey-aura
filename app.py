@@ -56,7 +56,6 @@ class VoiceTranscriber:
             try:
                 print(_("  → Loading VAD model..."))
                 self.vad=SileroVAD(threshold=VAD_THRESHOLD)
-                self.vad.initialize()
                 print(_("  ✅ VAD model loaded successfully"))
             except Exception as e:
                 vad_error=e
@@ -103,9 +102,7 @@ class VoiceTranscriber:
         
         # Initialize meeting VAD instances once at startup
         self.meeting_microphone_vad = SileroVAD()
-        self.meeting_microphone_vad.initialize()
         self.meeting_system_vad = SileroVAD()
-        self.meeting_system_vad.initialize()
         print(_("✅ Meeting VAD instances initialized"))
         
         # Initialize meeting recorder
