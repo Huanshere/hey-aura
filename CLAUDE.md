@@ -8,26 +8,6 @@ Hey Aura is a privacy-focused voice transcription application with real-time spe
 
 ## Development Commands
 
-### Installation and Setup
-```bash
-# Create conda environment
-conda create -n hey-aura python=3.10
-conda activate hey-aura
-
-# Install PyTorch (check https://pytorch.org/get-started/locally/ for platform-specific commands)
-# Windows: CUDA version recommended
-# macOS: Standard version
-
-# Install dependencies
-pip install -e .
-
-# Additional ASR backends (choose one)
-pip install faster-whisper  # Windows
-pip install mlx-whisper     # macOS M-series
-pip install funasr         # Chinese ASR
-pip install parakeet-mlx    # English ASR
-```
-
 ### Running the Application
 ```bash
 # Standard launch
@@ -42,12 +22,6 @@ python app.py
 ```bash
 # System health check for VAD, ASR, and LLM components
 python doctor.py
-
-# Test individual stages and functionality
-python test_stage.py
-
-# Audio test files available in docs/ directory
-# Test audio file: docs/test.mp3
 ```
 
 ## Architecture Overview
@@ -112,29 +86,7 @@ The application uses `config.yaml` for configuration:
 - `ui_language`: Interface language ('auto', 'en', 'zh') with automatic system detection
 - `dictation_rewrite`: Configuration for LLM-based text rewriting in dictation mode
 
-### Internationalization (i18n) System
-
-The application includes comprehensive i18n support via `core/i18n.py`:
-
-**Translation Workflow**:
-```bash
-# Extract translatable strings from code
-pybabel extract -F babel.cfg -o locales/messages.pot .
-
-# Update existing translation files  
-pybabel update -i locales/messages.pot -d locales -l zh
-pybabel update -i locales/messages.pot -d locales -l en
-
-# Compile translations for runtime use
-pybabel compile -d locales
-```
-
-**Adding New Languages**:
-```bash
-# Create translation file for new language (e.g., Japanese)
-pybabel init -i locales/messages.pot -d locales -l ja
-```
-
+I18n
 **Usage in Code**:
 - Import translation function: `from core.i18n import _`
 - Mark strings for translation: `_("Text to translate")`
@@ -155,7 +107,7 @@ pybabel init -i locales/messages.pot -d locales -l ja
 - PyObjC-based system tray integration
 - Application activation policy management
 
-**Windows/Linux**:
+**Windows**:
 - Global keyboard hooks using pynput
 - Standard system tray implementation
 
