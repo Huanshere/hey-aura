@@ -5,24 +5,17 @@ from pynput.keyboard import Key, Controller
 from pynput import keyboard
 from .i18n import _
 
-_kbd_controller = None
-
-def _get_keyboard():
-    global _kbd_controller
-    if _kbd_controller is None:
-        _kbd_controller = Controller()
-    return _kbd_controller
+_kbd_controller = Controller()
 
 def type_text(text: str):
+    """将文本粘贴到当前焦点处，支持跨平台（Windows、macOS）"""
     if not text:
         return
     try:
         pyperclip.copy(text)
         time.sleep(0.1)
-        
-        kbd = _get_keyboard()
+        kbd = _kbd_controller
         modifier_key = Key.cmd if platform.system() == "Darwin" else Key.ctrl
-        
         kbd.press(modifier_key)
         kbd.press('v')
         kbd.release('v')
