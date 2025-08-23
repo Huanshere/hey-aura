@@ -284,6 +284,19 @@ class VoiceTranscriber:
                 return print(_("Too short"))
             aud=self.audio_enhancer.enhance_audio(aud)
             aud=self.vad.extract_speech_segments(aud,self.sr,SPEECH_PADDING_MS)
+            
+            # Check for wakeword in dictation mode
+            if self.mode == 'dictation':
+                from core.wakeword import detect_from_audio
+                kws_start = time.time()
+                detected, confidence = detect_from_audio(aud.copy(), self.sr)
+                kws_time = (time.time() - kws_start) * 1000  # Convert to milliseconds
+                self.mode = 'command' if detected else 'dictation'
+                if detected:
+                    print(f"🎯 Hey Aura detected! Confidence: {confidence:.2f} | Time: {kws_time:.1f}ms | Switching to command mode")
+                else:
+                    print(f"🔍 Wake word check: {confidence:.2f} confidence | Time: {kws_time:.1f}ms")
+            
             if aud.size/self.sr<0.3:
                 self.tray.set_status("idle")
                 return print(_("Audio too short after VAD processing"))
