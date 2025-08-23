@@ -3,7 +3,7 @@ import datetime
 from core.i18n import _
 from core.meeting.audio_processor import MeetingAudioProcessor
 from core.meeting.transcription_processor import MeetingTranscriptionProcessor
-from core.meeting.meeting_exporter import MeetingExporter
+from core.meeting.meeting_exporter import save_meeting_results
 
 
 class MeetingRecorder:
@@ -14,7 +14,6 @@ class MeetingRecorder:
         self.transcriber_ref = voice_transcriber
         self.audio_processor = MeetingAudioProcessor(voice_transcriber)
         self.transcription_processor = MeetingTranscriptionProcessor(voice_transcriber, self.audio_processor)
-        self.exporter = MeetingExporter(voice_transcriber)
         self.meeting_mode = False
         self.meeting_stopping = False
         self.meeting_thread = None
@@ -65,7 +64,7 @@ class MeetingRecorder:
         try:
             transcripts = self.transcription_processor.get_transcripts()
             final_audio = self.audio_processor.get_recorded_audio()
-            self.exporter.save_meeting_results(self.meeting_start_time, transcripts, final_audio)
+            save_meeting_results(self.transcriber_ref, self.meeting_start_time, transcripts, final_audio)
             print(_("✅ Meeting recording saved"))
         except Exception as e:
             print(_("❌ Error saving meeting results: {}").format(e))
