@@ -146,7 +146,7 @@ class MeetingAudioProcessor:
                         chunk_energy = np.mean(np.abs(audio_chunk))
 
                         # Pre-filter, only run VAD on audio with enough energy
-                        if chunk_energy > 0.04 and self.microphone_vad is not None:
+                        if chunk_energy > 0.01 and self.microphone_vad is not None:
                             try:
                                 chunk_has_speech = self.microphone_vad.is_speech_realtime(audio_chunk, self.transcriber_ref.sr)
                             except Exception as e:
