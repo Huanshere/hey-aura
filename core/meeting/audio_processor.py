@@ -223,6 +223,7 @@ class MeetingAudioProcessor:
             if hasattr(self.transcriber_ref, 'meeting_recorder'):
                 self.transcriber_ref.meeting_recorder.meeting_mode = False
         finally:
+            # Ensure proper cleanup with forced garbage collection
             if stream:
                 try:
                     stream.stop()
@@ -230,6 +231,9 @@ class MeetingAudioProcessor:
                 except:
                     pass
             self.stream = None
+            # Force cleanup on macOS to prevent segfault
+            import gc
+            gc.collect()
 
     def _process_system_audio(self):
         """System audio processing and buffer storage."""
@@ -372,15 +376,26 @@ class MeetingAudioProcessor:
 
     def cleanup_resources(self):
         """Cleanup resources."""
-        # Cleanup VAD instances
+        # Force stop any remaining streams first
+        if hasattr(self, 'stream') and self.stream:
+            try:
+                self.stream.stop()
+                self.stream.close()
+                self.stream = None
+            except Exception:
+                pass
+        
+        # Cleanup VAD instances with explicit deletion
         try:
             if hasattr(self, 'microphone_vad') and self.microphone_vad:
+                del self.microphone_vad
                 self.microphone_vad = None
         except Exception:
             pass
 
         try:
             if hasattr(self, 'system_vad') and self.system_vad:
+                del self.system_vad
                 self.system_vad = None
         except Exception:
             pass
@@ -401,3 +416,11 @@ class MeetingAudioProcessor:
         # Clear system audio data
         with self.system_audio_buffer_lock:
             self.system_audio_buffer = []
+            
+        # Clear meeting audio data
+        with self.meeting_audio_buffer_lock:
+            self.meeting_audio_buffer = []
+            
+        # Force garbage collection on macOS
+        import gc
+        gc.collect()

@@ -193,12 +193,25 @@ class SystemAudioRecorder:
                             if len(speech_segment_buffer) > max_buffer_chunks:
                                 speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
 
-            self.stream.stop()
-            self.stream.close()
+            if self.stream:
+                try:
+                    self.stream.stop()
+                    self.stream.close()
+                    self.stream = None
+                except Exception:
+                    pass
 
         except Exception as e:
             print(_("→ [System] Recording failed: {}").format(e))
             self.is_recording = False
+            # Clean stream on error
+            if self.stream:
+                try:
+                    self.stream.stop()
+                    self.stream.close()
+                    self.stream = None
+                except Exception:
+                    pass
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to audio array"""
@@ -221,16 +234,35 @@ class SystemAudioRecorder:
             self.skip_system_recording = False
             return None
 
-        if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=2)
-
+        # Force stop stream first to avoid C library issues
         if self.stream:
-            self.stream.stop()
-            self.stream.close()
+            try:
+                self.stream.stop()
+                self.stream.close()
+                self.stream = None
+            except Exception as e:
+                print(_("→ Warning: Error closing stream: {}").format(e))
+
+        # Wait for thread with better cleanup
+        if self.recording_thread and self.recording_thread.is_alive():
+            self.recording_thread.join(timeout=3)
+            if self.recording_thread.is_alive():
+                print(_("→ Warning: Recording thread still alive, forcing cleanup"))
+
+        # Clear VAD resources explicitly on macOS
+        if self.vad:
+            try:
+                del self.vad
+                self.vad = None
+            except Exception:
+                pass
 
         if self.original_device:
-            self._set_output_device(self.original_device)
-            print(_("→ Restored to original device: {}").format(self.original_device))
+            try:
+                self._set_output_device(self.original_device)
+                print(_("→ Restored to original device: {}").format(self.original_device))
+            except Exception as e:
+                print(_("→ Warning: Could not restore audio device: {}").format(e))
 
         with self.buffer_lock:
             if self.audio_buffer:
