@@ -44,8 +44,8 @@ class MeetingRecorder:
             self.transcriber_ref.tray.update_meeting_menu(True)
         except Exception:
             pass
-        self.transcription_processor.start_transcription_processing()
         self.meeting_thread = self.audio_processor.start_audio_recording()
+        self.transcription_processor.start_transcription_processing()
     
     def stop_meeting_recording(self):
         """Stop meeting recording and save results."""
