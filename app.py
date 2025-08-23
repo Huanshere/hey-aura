@@ -19,7 +19,7 @@ import yaml
 from pydub import AudioSegment
 import datetime,json
 
-from core.keyboard_utils import ClipboardInjector, FnKeyListener, KeyboardEventHandler
+from core.keyboard_utils import type_text, FnKeyListener, KeyboardEventHandler
 from core.tray.tray_animator import TrayAnimator
 from core.transcription import create_transcriber
 from core import transcription_queue
@@ -92,7 +92,6 @@ class VoiceTranscriber:
         self.mode=None
         self.rec_lock = threading.Lock()  # Lock for thread safety
         self.active_stream = None  # Track active audio stream
-        self.text_injector=ClipboardInjector()
         self.keyboard_handler=KeyboardEventHandler(self)
         self.fn_listener = None  # Will be initialized for macOS
         self.tray=TrayAnimator()
@@ -337,9 +336,9 @@ class VoiceTranscriber:
         rewritten_text = rewrite_text(text, 'dictation')
         if rewritten_text != text:
             print(_("✨ Rewritten: {}").format(rewritten_text))
-        self.text_injector.type(rewritten_text)
+        type_text(rewritten_text)
         else:
-            self.text_injector.type(text)
+            type_text(text)
 
     def process_command(self,text):
         print(_("🤖 Command input: {}").format(text))
