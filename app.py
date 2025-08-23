@@ -124,7 +124,6 @@ class VoiceTranscriber:
     def quit_app(self):
         print(_("→ Exiting program"))
         self.cleanup_stream()
-        transcription_queue.stop()
         self.tray.stop_animation()
         if platform.system()!="Darwin":
             self.tray.icon and self.tray.icon.stop()

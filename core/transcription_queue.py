@@ -79,26 +79,6 @@ def _process_queue():
     
     print(_("→ Transcription worker stopped: {}").format(threading.current_thread().name))
 
-def stop(timeout=10):
-    global _running, _workers
-    
-    if not _running: return
-    
-    print(_("🔄 Stopping transcription service..."))
-    _running = False
-    
-    if _task_queue:
-        for _ in _workers:
-            try: _task_queue.put(None, timeout=0.1)
-            except queue.Full: pass
-    
-    for worker in _workers:
-        worker.join(timeout=timeout/len(_workers) if _workers else 1)
-        if worker.is_alive():
-            print(_("⚠️ Worker thread did not stop gracefully: {}").format(worker.name))
-    
-    _workers.clear()
-    print(_("✅ Transcription service stopped"))
 
 def get_queue_size() -> int:
     return _task_queue.qsize() if _task_queue else 0
