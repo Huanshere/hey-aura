@@ -336,7 +336,7 @@ class VoiceTranscriber:
         rewritten_text = rewrite_text(text, 'dictation')
         if rewritten_text != text:
             print(_("✨ Rewritten: {}").format(rewritten_text))
-        type_text(rewritten_text)
+            type_text(rewritten_text)
         else:
             type_text(text)
 
