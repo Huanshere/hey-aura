@@ -3,7 +3,9 @@ import gc
 import numpy as  np
 import warnings
 import openwakeword
+import logging
 warnings.filterwarnings("ignore")
+logging.getLogger().setLevel(logging.ERROR)
 os.environ["HF_HUB_CACHE"] = os.path.join(os.getcwd(), "models")
 openwakeword.utils.download_models()
 
