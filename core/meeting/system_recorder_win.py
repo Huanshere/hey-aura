@@ -17,10 +17,10 @@ warnings.filterwarnings("ignore", category=SoundcardRuntimeWarning, message="dat
 
 class SystemAudioRecorder:
     """System audio recorder for Windows loopback"""
-    def __init__(self, sample_rate=16000):
+    def __init__(self, sample_rate=16000, vad_instance=None):
         """Initialize the system audio recorder"""
         self.sr = sample_rate
-        self.vad = SileroVAD()
+        self.vad = vad_instance if vad_instance else SileroVAD()
         self.is_recording = False
         self.is_stopping = False
         self.recording_thread = None
@@ -122,10 +122,13 @@ class SystemAudioRecorder:
         if not self.is_recording:
             return None
         print(_("→ Stopping system audio recording..."))
+        # Set stopping flags FIRST before any operations
         self.is_stopping = True
         self.is_recording = False
         if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=2)
+            self.recording_thread.join(timeout=5)  # Increased timeout for safer cleanup
+            if self.recording_thread.is_alive():
+                print(_("→ Warning: Recording thread still alive, forcing cleanup"))
         with self.buffer_lock:
             if self.audio_buffer:
                 full_audio = self._bytes_to_audio(self.audio_buffer)
@@ -146,7 +149,9 @@ class SystemAudioRecorder:
 
 if __name__ == "__main__":
     print(_("System audio recording test (5 seconds) - Windows"))
-    recorder = SystemAudioRecorder(sample_rate=16000)
+    # Test with new VAD instance
+    test_vad = SileroVAD()
+    recorder = SystemAudioRecorder(sample_rate=16000, vad_instance=test_vad)
     recorder.start()
     print(_("Recording..."))
     time.sleep(5)

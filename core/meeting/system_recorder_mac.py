@@ -16,9 +16,9 @@ from core.i18n import _
 class SystemAudioRecorder:
     """System audio recorder for macOS using BlackHole/hey-aura"""
 
-    def __init__(self, sample_rate=16000):
+    def __init__(self, sample_rate=16000, vad_instance=None):
         self.sr = sample_rate
-        self.vad = SileroVAD(threshold=0.6)
+        self.vad = vad_instance if vad_instance else SileroVAD(threshold=0.6)
         self.is_recording = False
         self.is_stopping = False
         self.recording_thread = None
@@ -204,27 +204,28 @@ class SystemAudioRecorder:
                                 speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
 
             with self.stream_lock:  # Protect stream cleanup
-                if self.stream:
+                if self.stream and not self.is_stopping:
                     try:
-                        # Only stop if not already stopped by main thread
-                        if hasattr(self.stream, '_stream') and self.stream._stream is not None:
-                            self.stream.stop()
+                        self.stream.stop()
                         self.stream.close()
-                        self.stream = None  # This tells main thread we handled cleanup
                     except Exception:
+                        pass
+                    finally:
                         self.stream = None
 
         except Exception as e:
             print(_("→ [System] Recording failed: {}").format(e))
             self.is_recording = False
             # Clean stream on error
-            if self.stream:
-                try:
-                    self.stream.stop()
-                    self.stream.close()
-                    self.stream = None
-                except Exception:
-                    self.stream = None
+            with self.stream_lock:
+                if self.stream:
+                    try:
+                        self.stream.stop()
+                        self.stream.close()
+                    except Exception:
+                        pass
+                    finally:
+                        self.stream = None
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to audio array"""
@@ -245,10 +246,11 @@ class SystemAudioRecorder:
             self.skip_system_recording = False
             return None
 
-        # Set stopping flags
+        # Set stopping flags FIRST before any stream operations
         self.is_stopping = True
+        self.is_recording = False
         
-        # Force stop stream FIRST to interrupt any blocking read operations
+        # Force stop stream to interrupt any blocking read operations
         with self.stream_lock:  # Protect stream operations
             if self.stream:
                 try:
@@ -257,48 +259,30 @@ class SystemAudioRecorder:
                     # to avoid double-free issues
                 except Exception as e:
                     print(_("→ Warning: Error stopping stream: {}").format(e))
-                    # If stop fails, force set stream to None to prevent double cleanup
-                    self.stream = None
-        
-        # NOW set is_recording = False after stream is stopped
-        self.is_recording = False
+                    # If stop fails, we'll handle cleanup below
+                    pass
         
         # Wait for thread with better cleanup
         if self.recording_thread and self.recording_thread.is_alive():
             self.recording_thread.join(timeout=5)  # Increased timeout
             if self.recording_thread.is_alive():
                 print(_("→ Warning: Recording thread still alive, forcing cleanup"))
-                # If thread didn't exit, we need to force cleanup stream
+                # Force cleanup stream if thread didn't exit cleanly
                 with self.stream_lock:
                     if self.stream:
                         try:
                             self.stream.close()
-                            self.stream = None
                         except Exception:
+                            pass
+                        finally:
                             self.stream = None
-            else:
-                # Thread exited normally, it should have cleaned up the stream
-                # But let's make sure stream is None
-                with self.stream_lock:
-                    if self.stream:
-                        self.stream = None
-        else:
-            # No thread to clean up, we need to close stream ourselves
-            with self.stream_lock:
-                if self.stream:
-                    try:
-                        self.stream.close()
-                        self.stream = None
-                    except Exception:
-                        self.stream = None
+        
+        # Ensure stream is None after all cleanup attempts
+        with self.stream_lock:
+            self.stream = None
 
-        # Clear VAD resources explicitly on macOS
-        if self.vad:
-            try:
-                del self.vad
-                self.vad = None
-            except Exception:
-                pass
+        # Keep VAD instance alive - don't delete it
+        # VAD is managed at application level and reused
 
         if self.original_device:
             try:

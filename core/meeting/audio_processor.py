@@ -64,7 +64,8 @@ class MeetingAudioProcessor:
         # Start system audio recording
         if SystemAudioRecorder:
             try:
-                self.system_recorder = SystemAudioRecorder(sample_rate=self.transcriber_ref.sr)
+                # Pass the system VAD instance to reuse it
+                self.system_recorder = SystemAudioRecorder(sample_rate=self.transcriber_ref.sr, vad_instance=self.system_vad)
                 
                 if self.system_recorder.start():
                     print(_("→ 💡 System audio recording started"))
