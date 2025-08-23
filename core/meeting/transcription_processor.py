@@ -8,6 +8,7 @@ import numpy as np
 import scipy.io.wavfile as wav
 
 from core.i18n import _
+from core import transcription_queue
 
 
 class MeetingTranscriptionProcessor:
@@ -101,7 +102,7 @@ class MeetingTranscriptionProcessor:
                 start_time = time.time()
 
                 try:
-                    text = self.transcriber_ref.transcription_manager.transcribe_sync(
+                    text = transcription_queue.transcribe(
                         audio_path=tf.name,
                         language=self.transcriber_ref.language
                     )
@@ -200,7 +201,7 @@ class MeetingTranscriptionProcessor:
                 start_time = time.time()
 
                 try:
-                    text = self.transcriber_ref.transcription_manager.transcribe_sync(
+                    text = transcription_queue.transcribe(
                         audio_path=tf.name,
                         language=self.transcriber_ref.language
                     )
