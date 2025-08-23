@@ -101,6 +101,13 @@ class VoiceTranscriber:
         # Initialize transcription queue
         transcription_queue.init(transcriber=self.transcriber, max_workers=5)
         
+        # Initialize meeting VAD instances once at startup
+        self.meeting_microphone_vad = SileroVAD()
+        self.meeting_microphone_vad.initialize()
+        self.meeting_system_vad = SileroVAD()
+        self.meeting_system_vad.initialize()
+        print(_("✅ Meeting VAD instances initialized"))
+        
         # Initialize meeting recorder
         self.meeting_recorder = MeetingRecorder(self)
         

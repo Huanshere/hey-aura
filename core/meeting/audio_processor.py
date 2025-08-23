@@ -6,7 +6,7 @@ import queue
 import platform
 import warnings
 
-from core.audio_utils import AudioDeviceSelector, SileroVAD
+from core.audio_utils import AudioDeviceSelector
 from core.i18n import _
 
 if platform.system() == 'Windows':
@@ -23,13 +23,9 @@ class MeetingAudioProcessor:
         """Initialize the audio processor."""
         self.transcriber_ref = transcriber_ref
 
-        # Microphone VAD initialized
-        self.microphone_vad = SileroVAD()
-        self.microphone_vad.initialize()
-
-        # System audio VAD initialized
-        self.system_vad = SileroVAD()
-        self.system_vad.initialize()
+        # Use pre-initialized VAD instances from main app
+        self.microphone_vad = transcriber_ref.meeting_microphone_vad
+        self.system_vad = transcriber_ref.meeting_system_vad
 
         self.stream = None
         self.meeting_audio_buffer = []
@@ -386,20 +382,8 @@ class MeetingAudioProcessor:
             except Exception:
                 pass
         
-        # Cleanup VAD instances with explicit deletion
-        try:
-            if hasattr(self, 'microphone_vad') and self.microphone_vad:
-                del self.microphone_vad
-                self.microphone_vad = None
-        except Exception:
-            pass
-
-        try:
-            if hasattr(self, 'system_vad') and self.system_vad:
-                del self.system_vad
-                self.system_vad = None
-        except Exception:
-            pass
+        # Don't cleanup VAD instances - they are managed at app level
+        # VAD instances remain initialized throughout the application lifecycle
 
         # Clear queues
         try:
