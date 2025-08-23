@@ -2,17 +2,16 @@ import time
 from urllib.parse import quote_plus
 import webbrowser
 from pynput.keyboard import Key, Controller
-from core.keyboard_utils import ClipboardInjector
+from core.keyboard_utils import type_text
 
 def pplx(query: str):
     url = f"https://www.perplexity.ai/search?q={quote_plus(query)}"
     webbrowser.open(url)
 
 def _open_and_paste(url: str, query: str):
-    injector = ClipboardInjector()
     webbrowser.open(url)
     time.sleep(5)
-    injector.type(query)
+    type_text(query)
     time.sleep(0.5)
     kbd = Controller()
     kbd.press(Key.enter)

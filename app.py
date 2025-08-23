@@ -19,14 +19,14 @@ import yaml
 from pydub import AudioSegment
 import datetime,json
 
-from core.keyboard_utils import ClipboardInjector, FnKeyListener, KeyboardEventHandler
+from core.keyboard_utils import type_text, FnKeyListener, KeyboardEventHandler
 from core.tray.tray_animator import TrayAnimator
 from core.transcription import create_transcriber
-from core.transcription_queue import AsyncTranscriptionManager
+from core import transcription_queue
 from core.audio_utils import AudioEnhancer, SileroVAD, AudioDeviceSelector
 from core.command_mode import command_mode
 from core.i18n import _, set_language
-from core.llm_rewriter import get_rewriter
+from core.llm_rewriter import rewrite_text
 from core.meeting_utils import MeetingRecorder
 
 # Audio configuration constants
@@ -92,17 +92,14 @@ class VoiceTranscriber:
         self.mode=None
         self.rec_lock = threading.Lock()  # Lock for thread safety
         self.active_stream = None  # Track active audio stream
-        self.text_injector=ClipboardInjector()
         self.keyboard_handler=KeyboardEventHandler(self)
         self.fn_listener = None  # Will be initialized for macOS
         self.tray=TrayAnimator()
         self.audio_enhancer=AudioEnhancer(sample_rate=self.sr)
-        self.rewriter=get_rewriter()
         self.json_lock = threading.Lock()
         
         # Initialize transcription queue
-        self.transcription_manager = AsyncTranscriptionManager(transcriber=self.transcriber, max_workers=5)
-        self.transcription_manager.start()
+        transcription_queue.init(transcriber=self.transcriber, max_workers=5)
         
         # Initialize meeting recorder
         self.meeting_recorder = MeetingRecorder(self)
@@ -111,20 +108,6 @@ class VoiceTranscriber:
         self.tray.setup_tray_with_meeting(self.meeting_recorder.toggle_meeting_recording, self.quit_app)
         
         print(_("→ Fn for dictation, Fn+Ctrl for command mode, right-click tray to exit") if platform.system()=="Darwin" else _("→ Ctrl+Win for dictation, Win+Alt for command mode, right-click tray to exit"))
-        
-        self._setup_queue_monitoring()
-
-    def _setup_queue_monitoring(self): # Queue status monitoring
-        def monitor_queue():
-            while hasattr(self, 'transcription_manager') and self.transcription_manager.queue.running:
-                try:
-                    stats = self.transcription_manager.get_stats()
-                    if stats['queue_size'] > 0 or stats['active_tasks'] > 0:
-                        status_msg = _("Queue: {} pending, {} active").format(stats['queue_size'], stats['active_tasks'])
-                        if stats['queue_size'] > 5: print(_("⚠️ Transcription queue backlog: {} tasks").format(stats['queue_size']))
-                    time.sleep(5)
-                except Exception as e: print(_("Queue monitoring error: {}").format(e)); break
-        threading.Thread(target=monitor_queue, daemon=True, name="QueueMonitor").start()
 
     def cleanup_stream(self):
         """Force cleanup audio stream"""
@@ -139,7 +122,6 @@ class VoiceTranscriber:
     def quit_app(self):
         print(_("→ Exiting program"))
         self.cleanup_stream()
-        if hasattr(self, 'transcription_manager'): self.transcription_manager.stop()
         self.tray.stop_animation()
         if platform.system()!="Darwin":
             self.tray.icon and self.tray.icon.stop()
@@ -305,14 +287,14 @@ class VoiceTranscriber:
             tf.close()
             t=time.time()
             
-            # 使用转写队列进行异步转写
+            # Use transcription queue
             try:
-                txt = self.transcription_manager.transcribe_sync(
+                txt = transcription_queue.transcribe(
                     audio_path=tf.name,
                     language=self.language,
                     beam_size=5,
                     vad_filter=False,
-                    timeout=30  # 30秒超时
+                    timeout=30
                 )
                 
                 if txt.strip():
@@ -351,13 +333,12 @@ class VoiceTranscriber:
     def process_dictation(self,text):
         print(_("📝 Dictation output: {}").format(text))
         # Apply LLM rewriting if enabled (only for dictation mode)
-        if self.rewriter.enabled:
-            rewritten_text = self.rewriter.rewrite(text, 'dictation')
-            if rewritten_text != text:
-                print(_("✨ Rewritten: {}").format(rewritten_text))
-            self.text_injector.type(rewritten_text)
+        rewritten_text = rewrite_text(text, 'dictation')
+        if rewritten_text != text:
+            print(_("✨ Rewritten: {}").format(rewritten_text))
+        type_text(rewritten_text)
         else:
-            self.text_injector.type(text)
+            type_text(text)
 
     def process_command(self,text):
         print(_("🤖 Command input: {}").format(text))

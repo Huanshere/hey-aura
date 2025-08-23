@@ -66,7 +66,7 @@ class AudioDeviceSelector:
         return None
 
 class SileroVAD:
-    def __init__(self, threshold=0.5, min_speech_duration_ms=250, 
+    def __init__(self, threshold=0.6, min_speech_duration_ms=250, 
                  min_silence_duration_ms=100, window_size_samples=1536):
         self.threshold = threshold
         self.min_speech_duration_ms = min_speech_duration_ms

@@ -5,25 +5,23 @@ from pynput.keyboard import Key, Controller
 from pynput import keyboard
 from .i18n import _
 
-class ClipboardInjector:
-    def __init__(self):
-        self.kbd = Controller()
+_kbd_controller = Controller()
 
-    def type(self, text: str):
-        if not text:
-            return
-        try:
-            pyperclip.copy(text)
-            time.sleep(0.1)
-            
-            modifier_key = Key.cmd if platform.system() == "Darwin" else Key.ctrl  # cmd on mac, ctrl on win
-            
-            self.kbd.press(modifier_key)
-            self.kbd.press('v')
-            self.kbd.release('v')
-            self.kbd.release(modifier_key)
-        except Exception as e:
-            print(_("→ Input failed: {}").format(e))
+def type_text(text: str):
+    """将文本粘贴到当前焦点处，支持跨平台（Windows、macOS）"""
+    if not text:
+        return
+    try:
+        pyperclip.copy(text)
+        time.sleep(0.1)
+        kbd = _kbd_controller
+        modifier_key = Key.cmd if platform.system() == "Darwin" else Key.ctrl
+        kbd.press(modifier_key)
+        kbd.press('v')
+        kbd.release('v')
+        kbd.release(modifier_key)
+    except Exception as e:
+        print(_("→ Input failed: {}").format(e))
 
 
 class FnKeyListener:
@@ -335,5 +333,4 @@ if __name__ == "__main__":
         print(str(3-_)+"...",end=" ",flush=True)
         time.sleep(1)
     print("Starting paste...")
-    injector = ClipboardInjector()
-    injector.type("Hello, World!")
+    type_text("Hello, World!")

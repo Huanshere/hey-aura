@@ -159,3 +159,6 @@ Located in `core/tools/`, extensible tool framework supports:
 - `Start_Windows.bat` (Windows) / `Start_MacOS.command` (macOS): Platform launchers
 - `babel.cfg`: Babel configuration for i18n extraction
 - `recordings/`: Directory for saved recordings (meetings and push-to-talk)
+
+代码规则:
+尽量使用Kiss原则,减少注释的量,减少进行错误处理的代码,并且如果不是必要就不要使用class进行封装。

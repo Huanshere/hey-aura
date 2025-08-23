@@ -5,14 +5,8 @@ import scipy.io.wavfile as wav
 
 from core.i18n import _
 
-class MeetingExporter:
-    """Meeting exporter for saving meeting recordings and results."""
 
-    def __init__(self, transcriber_ref):
-        # Initialize MeetingExporter
-        self.transcriber_ref = transcriber_ref
-
-    def summarize_meeting(self, transcripts):
+def summarize_meeting(transcripts):
         """Summarize meeting transcripts."""
         from core.llm_context import cfg, ollama, OpenAI
         with open("core/prompts/summarize_meeting.md", encoding="utf-8") as f:
@@ -27,7 +21,7 @@ class MeetingExporter:
                 model=cfg['model'], messages=m, timeout=30).choices[0].message.content
         return result
 
-    def save_meeting_results(self, meeting_start_time, transcripts, final_audio):
+def save_meeting_results(transcriber_ref, meeting_start_time, transcripts, final_audio):
         # Save meeting results (transcripts and audio)
         if not meeting_start_time:
             return
@@ -39,13 +33,13 @@ class MeetingExporter:
 
         # Save transcripts if available
         if transcripts:
-            self._save_transcripts(output_dir, timestamp, meeting_start_time, transcripts)
+            _save_transcripts(output_dir, timestamp, meeting_start_time, transcripts)
 
         # Save audio if available
         if final_audio is not None and len(final_audio) > 0:
-            self._save_audio(output_dir, timestamp, final_audio)
+            _save_audio(transcriber_ref, output_dir, timestamp, final_audio)
 
-    def _save_transcripts(self, output_dir, timestamp, meeting_start_time, transcripts):
+def _save_transcripts(output_dir, timestamp, meeting_start_time, transcripts):
         # Save transcript text file
         sorted_transcripts = sorted(transcripts, key=lambda x: x['timestamp'])
 
@@ -82,7 +76,7 @@ class MeetingExporter:
         # Now try to generate and add summary
         try:
             print(_("📝 Generating meeting summary..."))
-            summary_text = self.summarize_meeting("\n".join(transcript_text_only))
+            summary_text = summarize_meeting("\n".join(transcript_text_only))
             
             # Read the existing content
             with open(transcript_file, 'r', encoding='utf-8') as f:
@@ -99,7 +93,7 @@ class MeetingExporter:
             print(_(f"⚠️ Failed to generate summary: {e}"))
             # Transcripts are already saved, so no action needed
 
-    def _save_audio(self, output_dir, timestamp, final_audio):
+def _save_audio(transcriber_ref, output_dir, timestamp, final_audio):
         # Save audio file (WAV and MP3)
         wav_file = f"{output_dir}/meeting_{timestamp}_temp.wav"
         mp3_file = f"{output_dir}/meeting_{timestamp}.mp3"
@@ -107,19 +101,19 @@ class MeetingExporter:
         # Write WAV file
         wav.write(
             wav_file,
-            self.transcriber_ref.sr,
+            transcriber_ref.sr,
             (np.clip(final_audio, -1.0, 1.0) * 32767).astype(np.int16)
         )
 
         # Convert to MP3
-        self.convert_to_mp3(wav_file, mp3_file)
+        _convert_to_mp3(wav_file, mp3_file)
 
         # Remove temporary WAV file
         os.unlink(wav_file)
 
         print(_("🎵 Audio saved to: {}").format(mp3_file))
 
-    def convert_to_mp3(self, wav_path, mp3_path):
+def _convert_to_mp3(wav_path, mp3_path):
         # Convert WAV to MP3 with quality level 2
         from pydub import AudioSegment
         audio = AudioSegment.from_wav(str(wav_path))
