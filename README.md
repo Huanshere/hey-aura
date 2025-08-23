@@ -116,7 +116,7 @@
 
 ```bash
 # 1. 环境准备
-conda create -n hey-aura python=3.10
+conda create -n hey-aura python=3.12
 conda activate hey-aura
 
 # 2. Windows GPU 用户需要提前安装 Cuda 版本 PyTorch
