@@ -3,6 +3,7 @@ from typing import Optional
 from core.transcription.base import TranscriptionModel
 from core.i18n import _
 import opencc
+import re
 
 # Mapping between model names and their MLX Hub paths
 MLX_MAP = {"large-v3-turbo": "mlx-community/whisper-large-v3-turbo", "large-v3": "mlx-community/whisper-large-v3-mlx"}
@@ -63,6 +64,14 @@ class WhisperTranscriber(TranscriptionModel):
         self.is_initialized = True
         print(f"  → {_('Whisper Ready in')} {time.time()-t:.2f}s")
     
+    def detect_hallucination(self, text: str) -> str:
+        """Detect and remove hallucinations (repeated characters > 15 times)"""
+        # Pattern to match any character repeated 15+ times
+        pattern = r'(.)\1{14,}'
+        # Replace repeated characters with single instance
+        cleaned = re.sub(pattern, r'\1', text)
+        return cleaned
+    
     def transcribe(self, path: str, language: Optional[str] = None, **kw) -> str:
         # Support both 'language' and 'lang' parameter names for compatibility
         lang = language or kw.get('lang')
@@ -77,13 +86,15 @@ class WhisperTranscriber(TranscriptionModel):
             # Convert to simplified Chinese for any Chinese variant
             if lang and (lang == 'zh' or lang.startswith('zh')):
                 text = self.t2s_converter.convert(text)
-            return text
+            # Remove hallucinations before returning
+            return self.detect_hallucination(text)
         
         result = self.mlx.transcribe(path, path_or_hf_repo=self.path, word_timestamps=False, language=lang)["text"]
         # Convert to simplified Chinese for any Chinese variant
         if lang and (lang == 'zh' or lang.startswith('zh')):
             result = self.t2s_converter.convert(result)
-        return result
+        # Remove hallucinations before returning
+        return self.detect_hallucination(result)
     
     def get_supported_languages(self) -> list: return ['*']
 
