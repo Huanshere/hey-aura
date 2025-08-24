@@ -43,7 +43,7 @@ python doctor.py
    - Multiple backend support:
      - Whisper: faster-whisper (Windows) / MLX-whisper (macOS)
      - FunASR: Chinese-specific ASR
-     - Parakeet: NeMo-based English transcription
+     - Parakeet: NeMo-based Europian transcription
    - Dynamic model loading based on configuration
 
 4. **Input/Output Management**:
@@ -86,7 +86,8 @@ The application uses `config.yaml` for configuration:
 - `ui_language`: Interface language ('auto', 'en', 'zh') with automatic system detection
 - `dictation_rewrite`: Configuration for LLM-based text rewriting in dictation mode
 
-I18n
+### I18n Support
+
 **Usage in Code**:
 - Import translation function: `from core.i18n import _`
 - Mark strings for translation: `_("Text to translate")`
@@ -140,7 +141,7 @@ Located in `core/tools/`, extensible tool framework supports:
 **ASR Model Types**:
 - `whisper-large-v3`, `whisper-large-v3-turbo`: Standard Whisper models
 - `funasr`: Chinese-optimized ASR backend
-- `parakeet-mlx`: English ASR for Apple Silicon
+- `parakeet`: English ASR for Apple Silicon
 - HuggingFace repository names (e.g., `Huan69/whisper-large-v3-turbo-cantonese-yue-english-ct2`)
 - Local model folder paths
 
@@ -153,12 +154,17 @@ Located in `core/tools/`, extensible tool framework supports:
 
 - `config.yaml`: Main configuration file
 - `doctor.py`: System diagnostic tool for health checking
-- `test_stage.py`: Individual component testing
+- `archive/test_stage.py`: Individual component testing
 - `docs/test.mp3`: Audio test file for ASR validation
 - `locales/`: Translation files directory with `.pot`, `.po`, and `.mo` files
 - `Start_Windows.bat` (Windows) / `Start_MacOS.command` (macOS): Platform launchers
 - `babel.cfg`: Babel configuration for i18n extraction
 - `recordings/`: Directory for saved recordings (meetings and push-to-talk)
 
-代码规则:
-尽量使用Kiss原则,减少注释的量,减少进行错误处理的代码,并且如果不是必要就不要使用class进行封装。
+## Code Guidelines
+
+- Follow KISS principle: minimize comments and error handling code
+- Avoid unnecessary class encapsulation unless required
+- Preserve exact indentation when editing files
+- Use existing libraries and patterns already in the codebase
+- Never add emojis to code unless explicitly requested
