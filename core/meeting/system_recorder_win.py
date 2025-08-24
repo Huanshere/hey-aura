@@ -63,7 +63,7 @@ class SystemAudioRecorder:
                 silence_duration = 0.0
                 speech_segment_buffer = []
                 speech_active = False
-                SILENCE_THRESHOLD = 1.5
+                SILENCE_THRESHOLD = 1.0
                 CHUNK_SIZE = 512
                 while not self._stop_event.is_set():
                     try:

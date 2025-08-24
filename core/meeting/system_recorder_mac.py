@@ -153,7 +153,7 @@ class SystemAudioRecorder:
             silence_duration = 0.0
             speech_segment_buffer = []
             speech_active = False
-            SILENCE_THRESHOLD = 1.5
+            SILENCE_THRESHOLD = 1.0
 
             def audio_callback(indata, frames, time_info, status):
                 """Audio callback - must be lightweight and fast"""
