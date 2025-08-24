@@ -28,6 +28,8 @@ class SystemAudioRecorder:
         self.audio_buffer = []
         self.buffer_lock = threading.RLock()
         self.segment_counter = 0
+        self.recorder = None  # Store recorder reference for cleanup
+        self._stop_event = threading.Event()  # Use Event for clean thread communication
 
     def start(self):
         """Start system audio recording"""
@@ -44,6 +46,7 @@ class SystemAudioRecorder:
         self.is_stopping = False
         self.audio_buffer = []
         self.segment_counter = 0
+        self._stop_event.clear()
         self.recording_thread = threading.Thread(target=self._recording_loop, daemon=True)
         self.recording_thread.start()
         print(_("→ System audio recording started"))
@@ -54,15 +57,17 @@ class SystemAudioRecorder:
         # Initialize COM for this thread (required for Windows audio)
         pythoncom.CoInitialize()
         try:
-            with self.loopback.recorder(samplerate=self.sr) as recorder:
+            self.recorder = self.loopback.recorder(samplerate=self.sr)
+            self.recorder.__enter__()  # Manually enter context
+            try:
                 silence_duration = 0.0
                 speech_segment_buffer = []
                 speech_active = False
                 SILENCE_THRESHOLD = 1.5
                 CHUNK_SIZE = 512
-                while self.is_recording and not self.is_stopping:
+                while not self._stop_event.is_set():
                     try:
-                        audio_chunk = recorder.record(numframes=CHUNK_SIZE)
+                        audio_chunk = self.recorder.record(numframes=CHUNK_SIZE)
                         if audio_chunk is None or len(audio_chunk) == 0:
                             continue
                         # Convert to mono if stereo
@@ -101,15 +106,25 @@ class SystemAudioRecorder:
                                 if len(speech_segment_buffer) > max_buffer_chunks:
                                     speech_segment_buffer = speech_segment_buffer[-max_buffer_chunks:]
                     except Exception as e:
-                        if self.is_recording:
+                        if not self._stop_event.is_set():
                             print(_("→ [System] Recording error: {}").format(e))
                         break
+            finally:
+                # Clean up recorder
+                if self.recorder:
+                    try:
+                        self.recorder.__exit__(None, None, None)
+                    except:
+                        pass  # Ignore cleanup errors
+                    self.recorder = None
         except Exception as e:
-            print(_("→ [System] Recording failed: {}").format(e))
-            self.is_recording = False
+            if not self._stop_event.is_set():
+                print(_("→ [System] Recording failed: {}").format(e))
         finally:
+            self.is_recording = False
             # Uninitialize COM when thread exits
             pythoncom.CoUninitialize()
+            print(_("→ [System] Recording loop ended"))
 
     def _bytes_to_audio(self, byte_chunks):
         """Convert byte chunks to numpy audio array"""
@@ -122,13 +137,38 @@ class SystemAudioRecorder:
         if not self.is_recording:
             return None
         print(_("→ Stopping system audio recording..."))
-        # Set stopping flags FIRST before any operations
-        self.is_stopping = True
-        self.is_recording = False
+        
+        # Signal recording thread to stop
+        self._stop_event.set()
+        
+        # Force abort the recorder if it exists to prevent hanging
+        if self.recorder:
+            try:
+                # Try to abort the recorder to force immediate stop
+                if hasattr(self.recorder, 'abort'):
+                    self.recorder.abort()
+                elif hasattr(self.recorder, 'close'):
+                    self.recorder.close()
+            except:
+                pass  # Ignore errors during abort
+        
+        # Wait for thread to finish with shorter timeout since we aborted
         if self.recording_thread and self.recording_thread.is_alive():
-            self.recording_thread.join(timeout=5)  # Increased timeout for safer cleanup
+            self.recording_thread.join(timeout=2)  # Reduced timeout since we force abort
             if self.recording_thread.is_alive():
-                print(_("→ Warning: Recording thread still alive, forcing cleanup"))
+                print(_("→ Warning: Recording thread still alive after timeout"))
+        
+        # Clear thread reference
+        self.recording_thread = None
+        
+        # Reset all flags
+        self.is_recording = False
+        self.is_stopping = False
+        self._stop_event.clear()
+        
+        # Wait for stabilization
+        time.sleep(0.2)
+        
         with self.buffer_lock:
             if self.audio_buffer:
                 full_audio = self._bytes_to_audio(self.audio_buffer)
